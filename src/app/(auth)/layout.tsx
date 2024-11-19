@@ -1,12 +1,19 @@
 import Image from "next/image";
 
 import { Footer } from "@/components/Footer";
+import { validateRequest } from "@/auth";
+import { redirect } from "next/navigation";
 
-export default function AuthLayout({
+export default async function AuthLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  const session = await validateRequest();
+  if (session.user) {
+    redirect("/home")
+  }
   return (
     <div className="flex flex-col h-dvh">
       <div className="flex flex-row h-full">
