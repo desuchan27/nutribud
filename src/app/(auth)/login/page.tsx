@@ -1,7 +1,7 @@
 "use client";
 
 import * as z from "zod";
-import { AuthContainer } from "@/components/auth/AuthContainer";
+import { AuthContainer } from "@/components/containers/AuthContainer";
 import { loginUserSchema } from "@/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -23,7 +23,6 @@ export default function LoginPage() {
   const errorPassword = form.formState.errors.password;
 
   const errorMessage = "text-sm text-red-500 font-semibold text-right";
-  // const normalMessage = "text-sm text-zinc-700";
 
   const onSubmit = (values: z.infer<typeof loginUserSchema>) => {
     console.log(values);
