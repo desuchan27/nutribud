@@ -10,9 +10,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { registerUserSchema } from "@/schema";
 
-import { AuthContainer } from "@/components/auth/AuthContainer";
+import { AuthContainer } from "@/components/containers/AuthContainer";
 import { register } from "@/actions/auth.actions";
 import toast from "react-hot-toast";
+import { redirect } from "next/navigation";
 
 export default function RegistrationPage() {
   const form = useForm<z.infer<typeof registerUserSchema>>({
@@ -47,6 +48,7 @@ export default function RegistrationPage() {
           console.log(data.error);
         } else {
           toast.success("Registration successful! Redirecting to login...");
+          redirect("/login");
         }
       });
     });
@@ -59,7 +61,6 @@ export default function RegistrationPage() {
         className="flex flex-col gap-y-4 w-full"
       >
         {/* Name */}
-
         <span className="flex flex-col md:flex-row gap-4">
           {/* First Name */}
           <span className="flex flex-col gap-2">
