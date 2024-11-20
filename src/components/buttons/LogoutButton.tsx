@@ -15,8 +15,8 @@ export const LogoutButton: FC<LogoutButtonProps> = ({
     }
 
     return (
-        <span onClick={onClick} className='cursor-pointer'>
+        <div onClick={onClick} className="px-8 py-4 rounded-lg bg-red-500 text-white hover:bg-opacity-90 transition-hover duration-200 cursor-pointer">
             {children}
-        </span>
+        </div>
     )
 }
