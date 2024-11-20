@@ -48,7 +48,6 @@ export const register = async (values: z.infer<typeof registerUserSchema>) => {
       },
     });
 
-    return redirect("/login");
   } catch (error) {
     if (error instanceof Error) {
       return { error: error.message };
@@ -83,7 +82,18 @@ export const login = async (values: z.infer<typeof loginUserSchema>) => {
   const sessionCookie = await lucia.createSessionCookie(session.id)
   cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
 
-  return redirect("/profile");
+
+  const userInfo = await db.userInfo.findFirst({
+    where: {
+      userId: existingUser.id
+    }
+  })
+
+  if (!userInfo){
+    return redirect(`/onboarding/${existingUser.id}`)
+  } else {
+    return redirect("/profile");
+  }
 }
 
 export const logout = async () => {
