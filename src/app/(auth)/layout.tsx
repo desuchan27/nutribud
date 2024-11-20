@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { Footer } from "@/components/Footer";
+import { Footer } from "@/components/partials/Footer";
 import { validateRequest } from "@/auth";
 import { redirect } from "next/navigation";
 
