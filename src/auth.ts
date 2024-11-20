@@ -24,6 +24,7 @@ export const lucia = new Lucia(adapter, {
       name: attributes.name,
       profileImage: attributes.profileImage,
       createdAt: attributes.createdAt,
+      userInfo: attributes.userInfo,
     };
   },
 });
@@ -43,6 +44,12 @@ declare module "lucia" {
     name: string;
     profileImage: string;
     createdAt: string;
+    userInfo?: {
+      height: number;
+      weight: number;
+      birthDate: string;
+      age: number;
+    }
   }
 }
 
