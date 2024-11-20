@@ -1,3 +1,4 @@
+import db from "@/lib/db";
 import { validateRequest } from "@/auth";
 import { SessionProvider } from "@/lib/auth/SessionContext";
 import { redirect } from "next/navigation";
@@ -9,9 +10,26 @@ export default async function ProtectedLayout({
 }>) {
   const session = await validateRequest();
 
+  const user = await db.userInfo.findFirst({
+    where: {
+      userId: session.user?.id,
+    },
+  });
+
+  const userbirthday = user?.birthDate;
+  const userheight = user?.height;
+  const userweight = user?.weight;
+
   if (!session.user) {
     redirect("/login");
   }
+
+
+  // if (session.user && !session.user.userInfo) {
+  //   redirect(`/onboarding/${session.user.id}`);
+  // }
+
+  console.log("user", userbirthday, userheight, userweight);
   
   return (
     <SessionProvider value={session}>
