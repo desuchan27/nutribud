@@ -45,3 +45,19 @@ export const loginUserSchema = z.object({
     message: "Wrong Password",
   }),
 });
+
+export const userInfoSchema = z.object({
+  birthDate: z
+    .string()
+    .refine((val) => !isNaN(Date.parse(val)), {
+      message: "Invalid Date",
+    })
+    .transform((val) => new Date(val)),  // Ensure it converts to a Date object
+  height: z.coerce.number().min(140, {
+    message: "Height must be greater than 140 cm",
+  }),
+  weight: z.coerce.number().min(40, {
+    message: "Weight must be greater than 40 kg",
+  }),
+});
+
