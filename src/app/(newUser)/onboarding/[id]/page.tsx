@@ -1,6 +1,6 @@
 import { validateRequest } from "@/auth";
 import { PageContainer } from "@/components/containers/PageContainer";
-import { Footer } from "@/components/Footer";
+import { Footer } from "@/components/partials/Footer";
 import OnboardingForm from "@/components/forms/OnboardingForm";
 import db from "@/lib/db";
 import { redirect } from "next/navigation";
