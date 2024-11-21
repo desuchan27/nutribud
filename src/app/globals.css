@@ -1,3 +1,46 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* uploadthing */
+
+.custom-container {
+    background-color: none;
+    margin-top: 1rem;
+  }
+  
+  /* applied to container when readying */
+  .custom-container[data-state="readying"] {
+    background-color: none;
+  }
+  
+  /* applied to button */
+  .custom-button {
+    font-size: 1rem;
+    color: rgb(0 0 0 / 1);
+    background-color: hsl(238.95 100% 11.18%);
+    padding: 0.5rem 2rem;
+  }
+  
+  /* applied to button when uploading */
+  .custom-button-uploading {
+    background-color: hsl(238.95 100% 11.18% / 0.5);
+    color: rgb(0 0 0 / 0.5);
+    cursor: not-allowed;
+  }
+  
+  .custom-button-uploading::after {
+    background-color: hsl(238.95 100% 11.18% / 0.5) !important;
+  }
+  
+  /* applied to the button when ready */
+  .custom-button-ready {
+    color: #ecfdf5;
+  }
+  
+  /* applied to the button when not ready */
+  .custom-button-not-ready {
+    background-color: hsl(238.95 100% 11.18% / 0.5);
+    color: rgb(0 0 0 / 0.5);
+    cursor: not-allowed;
+  }
