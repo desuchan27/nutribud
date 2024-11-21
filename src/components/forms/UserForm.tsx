@@ -1,18 +1,26 @@
 "use client";
 
 import * as z from "zod";
-import { userBioSchema } from "@/schema";
+import Image from "next/image";
+import { userBioSchema, userProfileImageSchema } from "@/schema";
 import { FaCamera, FaEdit, FaPlus } from "react-icons/fa";
 import { useModal } from "@/components/UseModal"; // Adjust the import path as needed
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { startTransition, useState } from "react";
 import { useSession } from "@/lib/auth/SessionContext";
-import { submitUserBio } from "@/actions/user.actions";
+import { submitUserBio, uploadProfileImage } from "@/actions/user.actions";
+import toast from "react-hot-toast";
+import { UploadButton } from "@/utils/uploadthing";
 
 interface UserBioFormProps {
   bio?: string;
   onBioUpdate: (newBio: string) => void;
+}
+
+interface UserProfileFormProps {
+  image?: string;
+  onProfileUpdate: (newProfile: string) => void;
 }
 
 export function UserBioForm({ bio, onBioUpdate }: UserBioFormProps) {
@@ -49,6 +57,7 @@ export function UserBioForm({ bio, onBioUpdate }: UserBioFormProps) {
       try {
         await submitUserBio(userId!, values.bio);
         onBioUpdate(values.bio);
+        toast.success("Bio updated successfully");
         handleCloseModal();
       } catch (error) {
         console.error(error);
@@ -61,26 +70,26 @@ export function UserBioForm({ bio, onBioUpdate }: UserBioFormProps) {
     <>
       <button onClick={handleOpenModal}>
         {bioExists ? (
-          <span className="flex flex-row items-center gap-2">
-            <FaEdit /> Edit Bio
+          <span className="text-sm sm:text-base text-zinc-700 flex flex-row items-center gap-2">
+            <FaEdit className="w-5 h-5" /> Edit Bio
           </span>
         ) : (
-          <span className="flex flex-row items-center gap-2">
-            <FaPlus /> Add Bio
+          <span className="text-sm sm:text-base text-zinc-700 flex flex-row items-center gap-2">
+            <FaPlus className="w-5 h-5" /> Add Bio
           </span>
         )}
       </button>
 
       {modal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 px-4 md:px-0 z-50">
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="w-1/2 max-h-1/2 h-fit flex flex-col bg-gray-100 p-4 gap-4 rounded-tr-xl rounded-bl-[3rem]"
+            className="w-full h-3/4 md:w-1/2 md:max-h-1/2 md:h-fit flex flex-col bg-gray-100 p-4 gap-4 rounded-tr-xl rounded-bl-[3rem]"
           >
             <h2>{bioHeader}</h2>
             <textarea
               {...form.register("bio")}
-              className="w-full p-2 border rounded-md"
+              className="w-full p-2 border rounded-md h-full"
               rows={4}
               placeholder="Enter your bio..."
               onChange={handleBioChange}
@@ -112,38 +121,132 @@ export function UserBioForm({ bio, onBioUpdate }: UserBioFormProps) {
   );
 }
 
-export function UserProfileForm() {
+export function UserProfileForm({
+  image,
+  onProfileUpdate,
+}: UserProfileFormProps) {
   const { modal, handleOpenModal, handleCloseModal } = useModal();
+
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+
+  const form = useForm<z.infer<typeof userProfileImageSchema>>({
+    resolver: zodResolver(userProfileImageSchema),
+    defaultValues: {
+      imageUrl: image || "",
+    },
+  });
+
+  const session = useSession();
+  const userId = session?.user?.id;
+
+  // const onSubmit = (values: z.infer<typeof userProfileImageSchema>) => {
+  //   startTransition(() => {
+  //     uploadProfileImage(userId!, values.imageUrl)
+  //       .then((data) => {
+  //         if (data?.error) {
+  //           form.reset();
+  //           toast.error(data.error);
+  //           console.log(data.error);
+  //         }
+  //       })
+  //       .catch((error) => {
+  //         console.log(error);
+  //       });
+  //   });
+  // };
+
+  const onSubmit = async (values: { imageUrl: string }) => {
+    try {
+      const data = await uploadProfileImage(userId!, values.imageUrl);
+      if (data.success) {
+        setUploadedImageUrl(values.imageUrl);
+        onProfileUpdate(values.imageUrl); // Trigger the update in ProfileBio
+        toast.success("Profile image updated successfully");
+      } else if (data.error) {
+        console.error(data.error);
+      }
+    } catch (error) {
+      console.error("Error uploading profile image:", error);
+    }
+  };
+
+  const close = () => {
+    handleCloseModal();
+  };
 
   return (
     <>
       <button
-        className="absolute bottom-5 right-0 px-4 py-4 aspect-square rounded-full bg-zinc-700"
+        className="flex flex-row items-center justify-center text-sm sm:text-base text-zinc-700 text-nowrap text-zinc-700 gap-2"
         onClick={handleOpenModal}
       >
-        <FaCamera className="w-7 h-7 text-gray-100" />
+        <FaCamera className="w-5 h-5" />
+        update profile
       </button>
 
       {modal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50">
-          <div className="bg-gray-100 p-4 rounded-lg h-1/2 w-1/2">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 px-4 md:px-0 z-50">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="w-full h-3/4 md:w-1/2 md:max-h-1/2 md:h-fit flex flex-col justify-between bg-gray-100 p-4 gap-4 rounded-tr-xl rounded-bl-[3rem]"
+          >
             <h2>Add Profile</h2>
-            <input
-              className="w-full p-2 border rounded-md"
-              placeholder="Enter your profile info..."
-            />
+            <div className="flex flex-col items-center justify-center">
+              
+              {uploadedFileName && (
+                <div className="mt-4 w-full flex flex-col items-center justify-center space-y-2">
+                  <div className="h-full w-full flex items-center justify-center">
+                    <div className="aspect-square w-[300px] h-[300px] overflow-hidden relative">
+                      <Image
+                        src={uploadedImageUrl || "defaultImageUrl"}
+                        alt="Uploaded Image"
+                        fill
+                        objectFit="cover"
+                        className="rounded-full"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-xs">Uploaded file: {uploadedFileName}</p>
+                </div>
+              )}
+              <UploadButton
+              className="mt-4 ut-button:bg-primary hover:ut-button:bg-primary/75 ut-button:ut-readying:bg-primary/50"
+                // appearance={{
+                //   button({ ready, isUploading }) {
+                //     return `custom-button ${
+                //       ready ? "custom-button-ready" : "custom-button-not-ready"
+                //     } ${isUploading ? "custom-button-uploading" : ""}`;
+                //   },
+                //   container: "custom-container",
+                //   allowedContent: "custom-allowed-content",
+                // }}
+                endpoint="imageUploader"
+                onClientUploadComplete={(res) => {
+                  if (res && res.length > 0) {
+                    const uploadedFile = res[0];
+                    const uploadedUrl = uploadedFile.url;
+                    setUploadedImageUrl(uploadedUrl);
+                    form.setValue("imageUrl", uploadedUrl);
+                    const fileName = uploadedFile.name;
+                    setUploadedFileName(fileName);
+                    form.handleSubmit(onSubmit)();
+                    alert(`Upload Completed. File name: ${fileName}`);
+                  } else {
+                    alert("No files uploaded.");
+                  }
+                }}
+                onUploadError={(error: Error) => {
+                  alert(`ERROR! ${error.message}`);
+                }}
+              />
+            </div>
             <div className="flex justify-end mt-4">
-              <button
-                onClick={handleCloseModal}
-                className="px-4 py-2 bg-gray-300 rounded-md mr-2"
-              >
-                Cancel
-              </button>
-              <button className="px-4 py-2 bg-blue-500 text-white rounded-md">
-                Save
+              <button onClick={close} className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/75 transition-bg duration-200">
+                Done
               </button>
             </div>
-          </div>
+          </form>
         </div>
       )}
     </>
@@ -156,7 +259,7 @@ export function UserPostForm() {
   return (
     <>
       <button
-        className="flex flex-row items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary text-white"
+        className="flex flex-row items-center justify-center gap-2 px-2 py-2 md:px-4 md:py-2 rounded-lg bg-primary text-white text-sm md:text-base"
         onClick={handleOpenModal}
       >
         <FaPlus /> Add Post
@@ -174,7 +277,7 @@ export function UserPostForm() {
             <div className="flex justify-end mt-4">
               <button
                 onClick={handleCloseModal}
-                className="px-4 py-2 bg-gray-300 rounded-md mr-2"
+                className="px-4 py-2 bg-gray-300 text-zinc-700 hover:bg-gray-300/75 transition-bg duration-200 rounded-md mr-2"
               >
                 Cancel
               </button>
