@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { UserBioForm, UserPostForm, UserProfileForm } from "@/components/forms/UserForm";
+import {
+  UserBioForm,
+  UserPostForm,
+  UserProfileForm,
+} from "@/components/forms/UserForm";
 import { useSession } from "@/lib/auth/SessionContext";
 import Image from "next/image";
 
@@ -20,6 +24,7 @@ export default function ProfileBio({
 }) {
   const session = useSession();
   const [userBio, setUserBio] = useState(bio);
+  const [userImage, setUserImage] = useState(image);
 
   const userUsername = username as string;
 
@@ -29,43 +34,105 @@ export default function ProfileBio({
     setUserBio(newBio);
   };
 
+  const handleProfileUpdate = (newProfile: string) => {
+    setUserImage(newProfile);
+  };
+
+  console.log("profile image:", userImage);
+
   return (
-    <div className="flex flex-col md:flex-row gap-10 md:gap-20 px-4 py-4 max-w-5xl mx-auto">
-      <div className="w-full md:w-1/4">
-        <div className="aspect-square relative">
-          {image ? (
-            <Image
-              src={image}
-              alt={userUsername}
-              className="object-cover w-full h-full rounded-full"
-            />
-          ) : (
-            <div className="w-full h-full bg-zinc-200 rounded-full">
-              <div className="w-full h-full flex justify-center items-center">
-                <p className="text-zinc-600 text-7xl font-semibold">
-                  {username?.charAt(0).toUpperCase()}
-                </p>
+    <>
+      {/* tablet and desktop view */}
+      <div className="hidden md:flex flex-col md:flex-row gap-10 px-4 py-4 max-w-5xl mx-auto">
+        <div className="w-full md:w-1/6 flex flex-col gap-4">
+          <div className="aspect-square relative">
+            {userImage ? (
+              <Image
+                src={userImage as string}
+                alt={userUsername}
+                className="object-cover w-full h-full rounded-full"
+                fill
+              />
+            ) : (
+              <div className="w-full h-full bg-zinc-200 rounded-full">
+                <div className="w-full h-full flex justify-center items-center">
+                  <p className="text-zinc-600 text-7xl font-semibold">
+                    {username?.charAt(0).toUpperCase()}
+                  </p>
+                </div>
               </div>
-              <UserProfileForm />
+            )}
+          </div>
+          {currentUser && (
+            <UserProfileForm
+              image={userImage}
+              onProfileUpdate={handleProfileUpdate}
+            />
+          )}
+        </div>
+
+        <div className="w-full md:w-5/6 flex flex-col justify-between text-zinc-700 gap-10">
+          <div className="w-full h-fit flex flex-col gap-4">
+            <div className="flex flex-col gap-1">
+              <h1 className="text-2xl font-semibold">{username}</h1>
+              <h2 className="!text-zinc-600">
+                {firstName} {lastName}
+              </h2>
+            </div>
+            <p className="whitespace-pre-wrap">{userBio}</p>
+          </div>
+          {currentUser && (
+            <div className="flex flex-row justify-end gap-4">
+              <UserBioForm bio={userBio} onBioUpdate={handleBioUpdate} />
+              <UserPostForm />
             </div>
           )}
         </div>
       </div>
-      <div className="w-full md:w-3/4 flex flex-col justify-between text-zinc-700 gap-10">
-        <div className="w-full h-fit flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
+
+      <div className="md:hidden flex flex-col md:flex-row gap-5 px-4 py-4 max-w-5xl mx-auto text-sm sm:text-base">
+        <div className="flex flex-row gap-5 h-full items-center justify-start">
+          <div className="flex flex-col gap-4 w-fit">
+            <div className="aspect-square relative h-32 w-32">
+              {image ? (
+                <Image
+                  src={userImage as string}
+                  alt={userUsername}
+                  className="object-cover w-full h-full rounded-full"
+                  fill
+                />
+              ) : (
+                <div className="w-24 h-24 sm:h-32 sm:w-32 aspect-square bg-zinc-200 rounded-full flex items-center justify-center">
+                  <p className="text-zinc-600 text-4xl font-semibold">
+                    {username?.charAt(0).toUpperCase()}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="w-fit flex flex-col gap-1 items-start">
             <h1 className="text-2xl font-semibold">{username}</h1>
             <h2 className="!text-zinc-600">
               {firstName} {lastName}
             </h2>
           </div>
-          <p className="whitespace-pre-wrap">{userBio}</p>
         </div>
-        <div className="flex flex-row justify-end gap-4">
-          {currentUser && <UserBioForm bio={userBio} onBioUpdate={handleBioUpdate} />}
-          {currentUser && <UserPostForm />}
+        <div className="flex flex-col gap-5 sm:px-8">
+          <p className="whitespace-pre-wrap">{userBio}</p>
+          {currentUser && (
+            <div className="flex flex-col sm:flex-row justify-center sm:justify-end gap-5">
+              <div className="flex flex-row gap-5 justify-end">
+                <UserProfileForm
+                  image={userImage}
+                  onProfileUpdate={handleProfileUpdate}
+                />
+                <UserBioForm bio={userBio} onBioUpdate={handleBioUpdate} />
+              </div>
+              <UserPostForm />
+            </div>
+          )}
         </div>
       </div>
-    </div>
+    </>
   );
 }
