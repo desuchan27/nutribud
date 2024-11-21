@@ -52,7 +52,7 @@ export const userInfoSchema = z.object({
     .refine((val) => !isNaN(Date.parse(val)), {
       message: "Invalid Date",
     })
-    .transform((val) => new Date(val)),  // Ensure it converts to a Date object
+    .transform((val) => new Date(val)), // Ensure it converts to a Date object
   height: z.coerce.number().min(140, {
     message: "Height must be greater than 140 cm",
   }),
@@ -61,3 +61,8 @@ export const userInfoSchema = z.object({
   }),
 });
 
+export const userBioSchema = z.object({
+  bio: z.string().max(500, {
+    message: "Bio must be less than 500 characters",
+  }),
+});
