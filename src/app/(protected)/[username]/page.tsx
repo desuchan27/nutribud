@@ -22,6 +22,7 @@ export default async function Profile({ params }: ProfileProps) {
   const getUserLastName = user?.lastName as string;
   const getUserName = user?.username as string;
   const getUserBio = user?.bio as string || undefined;
+  const getUserImage = user?.profileImage as string || undefined;
 
   console.log("user", getUserName);
 
@@ -45,7 +46,7 @@ export default async function Profile({ params }: ProfileProps) {
 
   return (
     <div className="w-full">
-      <ProfileBio username={getUserName} firstName={getUserFirstName} lastName={getUserLastName} bio={getUserBio}/>
+      <ProfileBio username={getUserName} firstName={getUserFirstName} lastName={getUserLastName} bio={getUserBio} image={getUserImage}/>
       <div className="border-b-2 pt-2"/>
     </div>
   );
