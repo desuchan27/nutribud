@@ -26,6 +26,7 @@ model User {
   username  String    @unique
   password   String
   profileImage      String?
+  bio       String?
   firstName  String
   lastName   String
   userInfo UserInfo?
