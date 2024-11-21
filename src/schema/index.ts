@@ -66,3 +66,7 @@ export const userBioSchema = z.object({
     message: "Bio must be less than 500 characters",
   }),
 });
+
+export const userProfileImageSchema = z.object({
+  imageUrl: z.string() 
+})
