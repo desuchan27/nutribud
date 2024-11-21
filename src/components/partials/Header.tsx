@@ -25,10 +25,13 @@ export default async function Header() {
   const userProfileImage = user?.profileImage ?? "";
 
   return (
-    <header className="w-full sticky top-0 left-0 bg-white rounded-bl-[2rem] border-b-2">
-      <div className="max-w-7xl flex flex-row px-4 sm:px-8 xl:px-0 py-4 mx-auto justify-between items-center">
+    <header className="w-full sticky top-0 left-0 bg-white rounded-bl-[2rem] outline outline-b-[0.1rem] outline-zinc-200 z-50">
+      <div className="max-w-7xl flex flex-row px-5 sm:px-8 xl:px-0 py-4 mx-auto justify-between items-center">
         <div className="flex flex-row gap-4 items-center">
-            <Link href="/">
+            <Link 
+            className="relative w-24 h-auto md:w-32"
+            href="/"
+            >
               <Image
                 src="/icons/nutribud-icon.svg"
                 width={126}
@@ -37,8 +40,6 @@ export default async function Header() {
                 className="cursor-pointer"
               />
             </Link>
-            <p className="font-semibold">/</p>
-            <LinkUrl />
         </div>
         <div>
           <nav>
