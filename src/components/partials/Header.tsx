@@ -5,7 +5,7 @@ import UserButton from "../buttons/UserButton";
 import db from "@/lib/db";
 import { FaCog, FaSignOutAlt } from "react-icons/fa";
 import { LogoutButton } from "../buttons/LogoutButton";
-import LinkUrl from "@/components/LinkUrl";
+// import LinkUrl from "@/components/LinkUrl";
 
 export default async function Header() {
   const session = await validateRequest();
