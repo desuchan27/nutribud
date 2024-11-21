@@ -20,7 +20,7 @@ export default function UserButton({
       </div>
       <div className="h-9 w-9 relative aspect-square rounded-full flex items-center justify-center overflow-hidden bg-zinc-200 group-hover:bg-zinc-600">
         {profileImage ? (
-          <Image src={profileImage} alt={userName as string} fill />
+          <Image src={profileImage} alt={userName as string} fill className="object-cover" />
         ) : (
           <p className="text-zinc-600 text-sm font-semibold group-hover:text-white">
             {userName?.charAt(0).toUpperCase()}
