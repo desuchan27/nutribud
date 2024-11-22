@@ -70,3 +70,19 @@ export const userBioSchema = z.object({
 export const userProfileImageSchema = z.object({
   imageUrl: z.string() 
 })
+
+export const userRecipeSchema = z.object({
+  title: z.string().min(5, {
+    message: "Title is required",
+  })
+  .max(50, {
+    message: "Title must be less than 50 characters",
+  }),
+  ingredients: z.string().min(5, {
+    message: "Ingredients is/are required",
+  }),
+  procedure: z.string().min(5, {
+    message: "Procedure is required",
+  }),
+  image: z.array(z.string()).optional(),
+})
