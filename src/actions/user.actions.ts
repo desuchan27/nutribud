@@ -1,7 +1,9 @@
 "use server";
 
+import * as z from "zod";
 import { validateRequest } from "@/auth";
 import db from "@/lib/db";
+import { userRecipeSchema } from "@/schema";
 
 export const getUserInfo = (id: string) => {
   const user = db.user.findFirst({
@@ -36,9 +38,7 @@ export const submitUserBio = async (id: string, bio: string) => {
   return user;
 };
 
-export const uploadProfileImage = async (id: string, image:string
-) => {
-
+export const uploadProfileImage = async (id: string, image: string) => {
   console.log("Received imageUrl:", image); // Log received imageUrl
 
   try {
@@ -73,6 +73,41 @@ export const uploadProfileImage = async (id: string, image:string
     console.error("Error updating avatar:", error); // Log any errors
     return {
       error: "An error occurred while updating the profile image",
+    };
+  }
+};
+
+export const submitUserRecipe = async (values: z.infer<typeof userRecipeSchema>) => {
+  try {
+    const session = await validateRequest();
+
+    if (!session.user) {
+      throw new Error("User not found");
+    }
+
+    const { title, ingredients, procedure, image } = values;
+
+    const imageArray = Array.isArray(image) ? image : [image];
+
+    await db.recipe.create({
+      data: {
+        title,
+        ingredients,
+        procedure,
+        recipeImage: {
+          create: imageArray.map((img) => ({ img: img as string })), // Ensure img is a string
+        },
+        userId: session.user.id,
+      },
+    });
+
+    return {
+      success: "Recipe posted successfully!",
+    };
+  } catch (error) {
+    console.error("Error submitting recipe:", error);
+    return {
+      error: "An unknown error occurred",
     };
   }
 };
