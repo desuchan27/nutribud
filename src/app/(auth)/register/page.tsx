@@ -13,7 +13,7 @@ import { registerUserSchema } from "@/schema";
 import { AuthContainer } from "@/components/containers/AuthContainer";
 import { register } from "@/actions/auth.actions";
 import toast from "react-hot-toast";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function RegistrationPage() {
   const form = useForm<z.infer<typeof registerUserSchema>>({
@@ -27,6 +27,8 @@ export default function RegistrationPage() {
       confirmPassword: "",
     },
   });
+
+  const router = useRouter();
 
   const errorFirstName = form.formState.errors.firstName;
   const errorLastName = form.formState.errors.lastName;
@@ -48,7 +50,7 @@ export default function RegistrationPage() {
           console.log(data.error);
         } else {
           toast.success("Registration successful! Redirecting to login...");
-          redirect("/login");
+          router.push("/login");
         }
       });
     });
