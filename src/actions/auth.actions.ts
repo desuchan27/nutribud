@@ -92,7 +92,7 @@ export const login = async (values: z.infer<typeof loginUserSchema>) => {
   if (!userInfo){
     return redirect(`/onboarding/${existingUser.id}`)
   } else {
-    return redirect("/profile");
+    return redirect("/home");
   }
 }
 
