@@ -3,11 +3,12 @@
 import { useState } from "react";
 import {
   UserBioForm,
-  UserPostForm,
   UserProfileForm,
+  UserRecipeForm,
 } from "@/components/forms/UserForm";
 import { useSession } from "@/lib/auth/SessionContext";
 import Image from "next/image";
+import { SectionContainerStart } from "@/components/containers/SectionContainer";
 
 export default function ProfileBio({
   username,
@@ -43,52 +44,53 @@ export default function ProfileBio({
   return (
     <>
       {/* tablet and desktop view */}
-      <div className="hidden md:flex flex-col md:flex-row gap-10 px-4 py-4 max-w-5xl mx-auto">
-        <div className="w-full md:w-1/6 flex flex-col gap-4">
-          <div className="aspect-square relative">
-            {userImage ? (
-              <Image
-                src={userImage as string}
-                alt={userUsername}
-                className="object-cover w-full h-full rounded-full"
-                fill
-              />
-            ) : (
-              <div className="w-full h-full bg-zinc-200 rounded-full">
-                <div className="w-full h-full flex justify-center items-center">
-                  <p className="text-zinc-600 text-7xl font-semibold">
-                    {username?.charAt(0).toUpperCase()}
-                  </p>
+      <SectionContainerStart>
+        <div className="hidden md:flex flex-col md:flex-row gap-10 px-4 py-8 w-full max-w-5xl mx-auto">
+          <div className="w-full md:w-1/6 flex flex-col gap-4">
+            <div className="aspect-square relative">
+              {userImage ? (
+                <Image
+                  src={userImage as string}
+                  alt={userUsername}
+                  className="object-cover w-full h-full rounded-full"
+                  fill
+                />
+              ) : (
+                <div className="w-full h-full bg-zinc-200 rounded-full">
+                  <div className="w-full h-full flex justify-center items-center">
+                    <p className="text-zinc-600 text-7xl font-semibold">
+                      {username?.charAt(0).toUpperCase()}
+                    </p>
+                  </div>
                 </div>
+              )}
+            </div>
+            {currentUser && (
+              <UserProfileForm
+                image={userImage}
+                onProfileUpdate={handleProfileUpdate}
+              />
+            )}
+          </div>
+          <div className="w-full md:w-5/6 flex flex-col justify-between text-zinc-700 gap-10">
+            <div className="w-full h-fit flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <h1 className="text-2xl font-semibold">{username}</h1>
+                <h2 className="!text-zinc-600">
+                  {firstName} {lastName}
+                </h2>
+              </div>
+              <p className="whitespace-pre-wrap">{userBio}</p>
+            </div>
+            {currentUser && (
+              <div className="flex flex-row justify-end gap-4">
+                <UserBioForm bio={userBio} onBioUpdate={handleBioUpdate} />
+                <UserRecipeForm />
               </div>
             )}
           </div>
-          {currentUser && (
-            <UserProfileForm
-              image={userImage}
-              onProfileUpdate={handleProfileUpdate}
-            />
-          )}
         </div>
-
-        <div className="w-full md:w-5/6 flex flex-col justify-between text-zinc-700 gap-10">
-          <div className="w-full h-fit flex flex-col gap-4">
-            <div className="flex flex-col gap-1">
-              <h1 className="text-2xl font-semibold">{username}</h1>
-              <h2 className="!text-zinc-600">
-                {firstName} {lastName}
-              </h2>
-            </div>
-            <p className="whitespace-pre-wrap">{userBio}</p>
-          </div>
-          {currentUser && (
-            <div className="flex flex-row justify-end gap-4">
-              <UserBioForm bio={userBio} onBioUpdate={handleBioUpdate} />
-              <UserPostForm />
-            </div>
-          )}
-        </div>
-      </div>
+      </SectionContainerStart>
 
       <div className="md:hidden flex flex-col md:flex-row gap-5 px-4 py-4 max-w-5xl mx-auto text-sm sm:text-base">
         <div className="flex flex-row gap-5 h-full items-center justify-start">
@@ -128,7 +130,7 @@ export default function ProfileBio({
                 />
                 <UserBioForm bio={userBio} onBioUpdate={handleBioUpdate} />
               </div>
-              <UserPostForm />
+              <UserRecipeForm />
             </div>
           )}
         </div>
