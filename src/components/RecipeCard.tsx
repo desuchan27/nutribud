@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 interface RecipeCardProps {
   recipe: {
@@ -20,6 +21,12 @@ interface RecipeCardProps {
 
 export default function RecipeCard({ recipe }: RecipeCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isIngredientExpanded, setIsIngredientExpanded] = useState(false);
+  const [isProcedureExpanded, setIsProcedureExpanded] = useState(false);
+
+  const moreThanOneImage = recipe.recipeImage.length > 1;
+  const ingredientMoreThan300Chars = recipe.procedure.length > 300;
+  const procedureMoreThan400Chars = recipe.procedure.length > 500;
 
   const handleNextImage = () => {
     setCurrentImageIndex((prevIndex) =>
@@ -33,36 +40,59 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
     );
   };
 
+  const toggleRecipeExpand = () => {
+    setIsIngredientExpanded(!isIngredientExpanded);
+  };
+
+  const toggleProcedureExpand = () => {
+    setIsProcedureExpanded(!isProcedureExpanded);
+  };
+
   return (
     <div
-      className="flex flex-col gap-5 px-5 py-5 bg-white rounded-bl-[2rem] rounded-tr-[2rem] shadow-lg"
+      className="flex flex-col gap-5 px-5 py-5 bg-white rounded-bl-[2rem] rounded-tr-[2rem] shadow-lg outline-none hover:outline hover:outline-secondary transition-all ease-linear duration-200"
       key={recipe.id}
     >
+      <Link
+        className="flex flex-row items-end gap-4 w-fit group"
+        href={`/${recipe.user.username}`}
+      >
+        <Image
+          src={recipe.user.image}
+          alt={recipe.user.username}
+          width={32}
+          height={32}
+          className="rounded-full"
+        />
+        <p className="text-sm font-semibold group-hover:underline">
+          {recipe.user.username}
+        </p>
+      </Link>
+      <h1 className="text-base md:text-xl font-semibold">{recipe.title} test</h1>
 
-        <Link className="flex flex-row items-end gap-4 w-fit group" href={`/${recipe.user.username}`}>
-          <Image src={recipe.user.image} alt={recipe.user.username} width={32} height={32} className="rounded-full" />
-            <p className="text-sm font-semibold group-hover:underline">{recipe.user.username}</p>
-        </Link>
-
-      <div className="relative w-full aspect-video">
+      <div className="relative w-full aspect-square sm:aspect-video">
         <Image
           src={recipe.recipeImage[currentImageIndex].img}
           alt={recipe.title}
           fill
           className="rounded-lg object-cover"
         />
-        <button
-          onClick={handlePrevImage}
-          className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full"
-        >
-          &lt;
-        </button>
-        <button
-          onClick={handleNextImage}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full"
-        >
-          &gt;
-        </button>
+        {moreThanOneImage && (
+          <>
+            <button
+              onClick={handlePrevImage}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white w-10 h-10 flex items-center justify-center rounded-full"
+            >
+              <FaChevronLeft />
+            </button>
+            <button
+              onClick={handleNextImage}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white w-10 h-10 flex items-center justify-center rounded-full"
+            >
+              <FaChevronRight />
+            </button>
+          </>
+        )}
         <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1">
           {recipe.recipeImage.map((_, index) => (
             <div
@@ -74,10 +104,41 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
           ))}
         </div>
       </div>
-      <div className="flex flex-col gap-2">
-        <h1 className="text-xl font-semibold">{recipe.title}</h1>
-        <p className="whitespace-pre-wrap">{recipe.ingredients}</p>
-        <p>{recipe.procedure}</p>
+      <div className="flex flex-col gap-5 text-sm md:text-base">
+        <div className="flex flex-col gap-2">
+          <h2 className="text-base font-semibold">Ingredients:</h2>
+          <p className={`${
+              isIngredientExpanded ? "" : "line-clamp-3"
+            } whitespace-pre-wrap`}>
+            {recipe.ingredients}
+          </p>
+          {ingredientMoreThan300Chars && (
+            <button
+              onClick={toggleRecipeExpand}
+              className="text-green-600 font-semibold w-fit hover:text-green-600/75 transition transition-200"
+            >
+              {isIngredientExpanded ? "Show less" : "Show more"}
+            </button>
+          )}
+        </div>
+        <div className="flex flex-col gap-2">
+          <h2 className="text-base font-semibold">Procedures:</h2>
+          <p
+            className={`${
+              isProcedureExpanded ? "" : "line-clamp-3"
+            } whitespace-pre-wrap`}
+          >
+            {recipe.procedure}
+          </p>
+          {procedureMoreThan400Chars && (
+            <button
+              onClick={toggleProcedureExpand}
+              className="text-green-600 font-semibold w-fit hover:text-green-600/75 transition transition-200"
+            >
+              {isProcedureExpanded ? "Show less" : "Show more"}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
