@@ -8,7 +8,7 @@ import {
 } from "@/components/forms/UserForm";
 import { useSession } from "@/lib/auth/SessionContext";
 import Image from "next/image";
-import { SectionContainerStart } from "@/components/containers/SectionContainer";
+// import { SectionContainerStart } from "@/components/containers/SectionContainer";
 
 export default function ProfileBio({
   username,
@@ -44,7 +44,7 @@ export default function ProfileBio({
   return (
     <>
       {/* tablet and desktop view */}
-      <SectionContainerStart>
+      {/* <SectionContainerStart> */}
         <div className="hidden md:flex flex-col md:flex-row gap-10 px-4 py-8 w-full max-w-5xl mx-auto">
           <div className="w-full md:w-1/6 flex flex-col gap-4">
             <div className="aspect-square relative">
@@ -90,7 +90,7 @@ export default function ProfileBio({
             )}
           </div>
         </div>
-      </SectionContainerStart>
+      {/* </SectionContainerStart> */}
 
       <div className="md:hidden flex flex-col md:flex-row gap-5 px-4 py-4 max-w-5xl mx-auto text-sm sm:text-base">
         <div className="flex flex-row gap-5 h-full items-center justify-start">
