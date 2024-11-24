@@ -6,7 +6,7 @@ import * as z from "zod";
 
 import { LogoutButton } from "../buttons/LogoutButton";
 import { PageContainer } from "../containers/PageContainer";
-import { SectionContainerCenter } from "../containers/SectionContainer";
+import { SectionContainerCenter, SectionContainerStart } from "../containers/SectionContainer";
 import { userInfoSchema } from "@/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
@@ -78,65 +78,65 @@ export default function OnboardingForm({
         <h1 className="text-2xl text-center">
           Welcome to nutribud! <span className="text-primary font-bold">{firstName} {lastName}</span>
         </h1>
-        <p>Palihug ko pabutang ug kaning subheader diri nga something welcoming </p>
+        <p>Your health journey starts now. Make it a priority.</p>
       </SectionContainerCenter>
 
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="w-full max-w-xl flex flex-col gap-4"
-      >
-        <span className="flex flex-col gap-2">
-          <label htmlFor="name" className={normalMessage}>
-            {errorBirthDate ? (
-              <span className={errorMessage}>{errorBirthDate.message}</span>
-            ) : (
-              <span>Enter your birthdate</span>
-            )}
-          </label>
-          <input
-            className="w-full px-8 py-4 rounded-md bg-gray-200/75"
-            type="date"
-            placeholder="kg"
-            {...form.register("birthDate")}
-          />
-        </span>
-        <span className="flex flex-col gap-2">
-          <label htmlFor="height" className={normalMessage}>
-            {errorHeight ? (
-              <span className={errorMessage}>{errorHeight.message}</span>
-            ) : (
-              <span>Height</span>
-            )}
-          </label>
-          <input
-            className="w-full px-8 py-4 rounded-md bg-gray-200/75"
-            type="number"
-            placeholder="cm"
-            {...form.register("height")}
-          />
-        </span>
-
-        <span className="flex flex-col gap-2">
-          <label htmlFor="weight" className={normalMessage}>
-            {errorWeight ? (
-              <span className={errorMessage}>{errorWeight.message}</span>
-            ) : (
-              <span>Weight:</span>
-            )}
-          </label>
-          <input
-            className="w-full px-8 py-4 rounded-md bg-gray-200/75"
-            type="number"
-            placeholder="kg"
-            {...form.register("weight")}
-          />
-        </span>
-
-        <button type="submit" className="w-full px-8 py-4 rounded-lg bg-primary text-white hover:bg-opacity-90 transition-hover duration-200">
-          submit
-        </button>
-      </form>
-      <LogoutButton>Logout</LogoutButton>
+      <SectionContainerStart>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="w-full max-w-xl flex flex-col gap-4 mx-auto"
+        >
+          <span className="flex flex-col gap-2">
+            <label htmlFor="name" className={normalMessage}>
+              {errorBirthDate ? (
+                <span className={errorMessage}>{errorBirthDate.message}</span>
+              ) : (
+                <span>Enter your birthdate</span>
+              )}
+            </label>
+            <input
+              className="w-full px-8 py-4 rounded-md bg-gray-200/75"
+              type="date"
+              placeholder="kg"
+              {...form.register("birthDate")}
+            />
+          </span>
+          <span className="flex flex-col gap-2">
+            <label htmlFor="height" className={normalMessage}>
+              {errorHeight ? (
+                <span className={errorMessage}>{errorHeight.message}</span>
+              ) : (
+                <span>Height</span>
+              )}
+            </label>
+            <input
+              className="w-full px-8 py-4 rounded-md bg-gray-200/75"
+              type="number"
+              placeholder="cm"
+              {...form.register("height")}
+            />
+          </span>
+          <span className="flex flex-col gap-2">
+            <label htmlFor="weight" className={normalMessage}>
+              {errorWeight ? (
+                <span className={errorMessage}>{errorWeight.message}</span>
+              ) : (
+                <span>Weight:</span>
+              )}
+            </label>
+            <input
+              className="w-full px-8 py-4 rounded-md bg-gray-200/75"
+              type="number"
+              placeholder="kg"
+              {...form.register("weight")}
+            />
+          </span>
+          <button type="submit" className="w-full px-8 py-4 rounded-lg bg-primary text-white hover:bg-opacity-90 transition-hover duration-200">
+            submit
+          </button>
+        </form>
+      <p className="text-center">You can fill it up next time <LogoutButton><span className="font-semibold hover:text-red-500">Logout</span></LogoutButton></p>
+      </SectionContainerStart>
     </PageContainer>
   );
 }
