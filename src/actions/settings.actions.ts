@@ -2,7 +2,7 @@
 
 import { validateRequest } from "@/auth";
 import db from "@/lib/db";
-import { userSettingsSchema } from "@/schema";
+import { userInfoSchema, userSettingsSchema } from "@/schema";
 import { Argon2id } from "oslo/password";
 import * as z from "zod";
 
@@ -70,4 +70,38 @@ export const updateUserSettings = async (values: z.infer<typeof userSettingsSche
       success: "User settings updated successfully",
     };
   }
+};
+
+export const updateUserInfo = async (values: z.infer<typeof userInfoSchema>) => {
+  const { birthDate, height, weight } = values;
+
+  const session = await validateRequest();
+  const sessionId = session.user?.id;
+
+  const existingUserInfo = await db.userInfo.findFirst({
+    where: {
+      userId: sessionId,
+    },
+  });
+
+  if (!existingUserInfo) {
+    return {
+      error: "User info not found",
+    };
+  }
+
+  await db.userInfo.update({
+    where: {
+      userId: sessionId,
+    },
+    data: {
+      birthDate,
+      height,
+      weight,
+    },
+  });
+
+  return {
+    success: "User info updated successfully",
+  };
 };
