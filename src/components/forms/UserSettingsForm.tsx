@@ -7,13 +7,13 @@ import Image from "next/image";
 import { User, UserInfo } from "@prisma/client";
 
 import * as z from "zod";
-import { startTransition, useState } from "react";
-import { userSettingsSchema } from "@/schema";
+import { startTransition, useEffect, useState } from "react";
+import { userInfoSchema, userSettingsSchema } from "@/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SectionContainerStart } from "../containers/SectionContainer";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { UploadButton } from "@/utils/uploadthing";
-import { updateUserSettings } from "@/actions/settings.actions";
+import { updateUserInfo, updateUserSettings } from "@/actions/settings.actions";
 import toast from "react-hot-toast";
 
 interface UserSettingsFormProps {
@@ -92,7 +92,7 @@ export function UserSettingsForm({ userData }: UserSettingsFormProps) {
     <form onSubmit={form.handleSubmit(onSubmit)} className="w-full md:w-1/2">
       <SectionContainerStart>
         {/* Title */}
-        <h2 className="text-xl font-semibold pb-5">User Info</h2>
+        <h2 className="text-xl font-semibold pb-5">Personal Info</h2>
         {/* Form */}
         <div className="w-full flex flex-col gap-10">
           {/* Profile Image */}
@@ -309,13 +309,112 @@ export function UserSettingsForm({ userData }: UserSettingsFormProps) {
   );
 }
 
-export function UserInfoSettingsForm({
-  userInfoData,
-}: UserInfoSettingsFormProps) {
+// export function UserInfoSettingsForm({
+//   userInfoData,
+// }: UserInfoSettingsFormProps) {
+//   return (
+//     <form className="w-full md:w-1/2">
+//       <SectionContainerStart>
+//         <h2 className="text-xl font-semibold">Nutritional Info</h2>
+//       </SectionContainerStart>
+//     </form>
+//   );
+// }
+
+export function UserInfoSettingsForm({ userInfoData }: UserInfoSettingsFormProps) {
+  const form = useForm<z.infer<typeof userInfoSchema>>({
+    resolver: zodResolver(userInfoSchema),
+    defaultValues: {
+      birthDate: new Date(),
+      height: 0,
+      weight: 0,
+    },
+  });
+
+  useEffect(() => {
+    if (userInfoData) {
+      form.setValue("birthDate", new Date(userInfoData.birthDate).toISOString().split("T")[0]);
+      form.setValue("height", userInfoData.height);
+      form.setValue("weight", userInfoData.weight);
+    }
+  }, [userInfoData, form]);
+
+  const errorBirthDate = form.formState.errors.birthDate;
+  const errorHeight = form.formState.errors.height;
+  const errorWeight = form.formState.errors.weight;
+
+  const errorMessage = "text-sm text-red-500 font-semibold text-right";
+  const normalMessage = "text-sm text-zinc-700";
+
+  const onSubmit = async (values: z.infer<typeof userInfoSchema>) => {
+    const response = await updateUserInfo(values);
+    if (response.error) {
+      toast.error(response.error);
+    } else {
+      toast.success("User info updated successfully!");
+    }
+  };
+
   return (
-    <form className="w-full md:w-1/2">
+    <form onSubmit={form.handleSubmit(onSubmit)} className="w-full md:w-1/2">
       <SectionContainerStart>
-        <h2 className="text-xl font-semibold">Nutritional Info</h2>
+        <h2 className="text-xl font-semibold pb-5">Nutritional Info</h2>
+        <div className="w-full flex flex-col gap-10">
+          {/* Birth Date */}
+          <span className="w-full flex flex-col gap-2">
+            <label htmlFor="birthDate" className={normalMessage}>
+              {errorBirthDate ? (
+                <span className={errorMessage}>{errorBirthDate.message}</span>
+              ) : (
+                <span>Birth Date</span>
+              )}
+            </label>
+            <input
+              {...form.register("birthDate")}
+              type="date"
+              className="w-full px-8 py-4 rounded-md bg-gray-200/75"
+            />
+          </span>
+
+          {/* Height */}
+          <span className="w-full flex flex-col gap-2">
+            <label htmlFor="height" className={normalMessage}>
+              {errorHeight ? (
+                <span className={errorMessage}>{errorHeight.message}</span>
+              ) : (
+                <span>Height</span>
+              )}
+            </label>
+            <input
+              {...form.register("height")}
+              type="number"
+              className="w-full px-8 py-4 rounded-md bg-gray-200/75"
+            />
+          </span>
+
+          {/* Weight */}
+          <span className="w-full flex flex-col gap-2">
+            <label htmlFor="weight" className={normalMessage}>
+              {errorWeight ? (
+                <span className={errorMessage}>{errorWeight.message}</span>
+              ) : (
+                <span>Weight</span>
+              )}
+            </label>
+            <input
+              {...form.register("weight")}
+              type="number"
+              className="w-full px-8 py-4 rounded-md bg-gray-200/75"
+            />
+          </span>
+
+          <button
+            type="submit"
+            className="w-full px-8 py-4 rounded-lg bg-primary text-white hover:bg-opacity-90 transition-hover duration-200"
+          >
+            Save Changes
+          </button>
+        </div>
       </SectionContainerStart>
     </form>
   );
