@@ -27,6 +27,9 @@ export default async function Profile({ params }: ProfileProps) {
   });
 
   const recipes = await db.recipe.findMany({
+    orderBy: {
+      createdAt: "desc", // Sort by latest post
+    },
     where: {
       userId: user?.id,
     },
