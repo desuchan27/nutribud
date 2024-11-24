@@ -1,6 +1,9 @@
 import { validateRequest } from "@/auth";
 import { PageContainer } from "@/components/containers/PageContainer";
-import { UserInfoSettingsForm, UserSettingsForm } from "@/components/forms/UserSettingsForm";
+import {
+  UserInfoSettingsForm,
+  UserSettingsForm,
+} from "@/components/forms/UserSettingsForm";
 import db from "@/lib/db";
 
 export default async function Settings() {
@@ -21,8 +24,10 @@ export default async function Settings() {
   return (
     <PageContainer>
       <div className="flex flex-col md:flex-row">
-        <UserSettingsForm userData={getUserData} />
         <UserInfoSettingsForm userInfoData={getUserInfoData} />
+
+        <div className="border border-[0.1rem] border-gray-200 md:mx-4"/>
+        <UserSettingsForm userData={getUserData} />
       </div>
     </PageContainer>
   );
