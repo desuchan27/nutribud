@@ -68,16 +68,18 @@ export const userBioSchema = z.object({
 });
 
 export const userProfileImageSchema = z.object({
-  imageUrl: z.string() 
-})
+  imageUrl: z.string(),
+});
 
 export const userRecipeSchema = z.object({
-  title: z.string().min(5, {
-    message: "Title is required",
-  })
-  .max(50, {
-    message: "Title must be less than 50 characters",
-  }),
+  title: z
+    .string()
+    .min(5, {
+      message: "Title is required",
+    })
+    .max(50, {
+      message: "Title must be less than 50 characters",
+    }),
   ingredients: z.string().min(5, {
     message: "Ingredients is/are required",
   }),
@@ -85,4 +87,37 @@ export const userRecipeSchema = z.object({
     message: "Procedure is required",
   }),
   image: z.array(z.string()).optional(),
-})
+});
+
+export const userSettingsSchema = z
+  .object({
+    image: z.string(),
+    email: z.string().email({
+      message: "Email is required",
+    }),
+    firstName: z.string().min(1, {
+      message: "First Name is required",
+    }),
+    lastName: z.string().min(1, {
+      message: "Last Name is required",
+    }),
+    username: z
+      .string()
+      .min(6, {
+        message: "Username must be at least 6 characters",
+      })
+      .max(20, {
+        message: "Username must be at most 20 characters",
+      }),
+    bio: z.string().max(500, {
+      message: "Bio must be less than 500 characters",
+    }),
+    currentPassword: z.string().optional(),
+
+    newPassword: z.string().optional(),
+    confirmNewPassword: z.string().optional(),
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"], // Set the path of the error to 'confirmPassword'
+  });
