@@ -20,6 +20,7 @@ import {
 } from "@/actions/user.actions";
 import toast from "react-hot-toast";
 import { UploadButton } from "@/utils/uploadthing";
+import { useRouter } from "next/navigation";
 
 interface UserBioFormProps {
   bio?: string;
@@ -313,11 +314,15 @@ export function UserRecipeForm() {
   // const session = useSession();
   // const userId = session?.user?.id;
 
+  const router = useRouter();
+
   const onSubmit = async (values: z.infer<typeof userRecipeSchema>) => {
     try {
       await submitUserRecipe({ ...values, image: uploadedImages });
       toast.success("Recipe posted successfully!");
       handleCloseModal();
+      
+      router.refresh();
     } catch (error) {
       console.error("Error submitting recipe:", error);
       toast.error("An unknown error occurred");

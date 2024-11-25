@@ -54,7 +54,7 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
       key={recipe.id}
     >
       <Link
-        className="flex flex-row items-end gap-4 w-fit group"
+        className="flex flex-row items-center gap-4 w-fit group"
         href={`/${recipe.user.username}`}
       >
         <Image
@@ -62,13 +62,18 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
           alt={recipe.user.username}
           width={32}
           height={32}
-          className="rounded-full"
+          className="rounded-full object-cover"
         />
         <p className="text-sm font-semibold group-hover:underline">
           {recipe.user.username}
         </p>
       </Link>
-      <h1 className="text-base md:text-xl font-semibold">{recipe.title} test</h1>
+      <Link 
+        className="w-fit hover:underline hover:text-primary transition-all ease-linear duration-200"
+        href={`recipe/${recipe?.id}`}
+      >
+        <h1 className="text-base md:text-xl font-semibold">{recipe.title}</h1>
+      </Link>
 
       <div className="relative w-full aspect-square sm:aspect-video">
         <Image

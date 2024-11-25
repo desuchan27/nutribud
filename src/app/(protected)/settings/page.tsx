@@ -13,6 +13,9 @@ export default async function Settings() {
     where: {
       id: session.user?.id,
     },
+    include: {
+      recipe: true,
+    }
   });
 
   const getUserInfoData = await db.userInfo.findUnique({
@@ -25,7 +28,6 @@ export default async function Settings() {
     <PageContainer>
       <div className="flex flex-col md:flex-row">
         <UserInfoSettingsForm userInfoData={getUserInfoData} />
-
         <div className="border border-[0.1rem] border-gray-200 md:mx-4"/>
         <UserSettingsForm userData={getUserData} />
       </div>
