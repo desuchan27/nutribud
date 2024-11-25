@@ -24,6 +24,9 @@ export default async function Profile({ params }: ProfileProps) {
     where: {
       username: username,
     },
+    include: {
+      recipe: true,
+    }
   });
 
   const recipes = await db.recipe.findMany({
@@ -56,11 +59,11 @@ export default async function Profile({ params }: ProfileProps) {
   //   },
   // });
 
-  const getUserFirstName = user?.firstName as string;
-  const getUserLastName = user?.lastName as string;
+  // const getUserFirstName = user?.firstName as string;
+  // const getUserLastName = user?.lastName as string;
   const getUserName = user?.username as string;
-  const getUserBio = (user?.bio as string) || undefined;
-  const getUserImage = (user?.profileImage as string) || undefined;
+  // const getUserBio = (user?.bio as string) || undefined;
+  // const getUserImage = (user?.profileImage as string) || undefined;
 
   // const getRecipleId = recipe?.id as string;
   // const getRecipeTitle = recipe?.title as string;
@@ -91,11 +94,8 @@ export default async function Profile({ params }: ProfileProps) {
   return (
     <div className="w-full">
       <ProfileBio
-        username={getUserName}
-        firstName={getUserFirstName}
-        lastName={getUserLastName}
-        bio={getUserBio}
-        image={getUserImage}
+        userData={user}
+        recipeData={mappedRecipes}
       />
       <div className="border-b-2" />
       <RecipeList recipes={mappedRecipes} />
