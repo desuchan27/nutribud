@@ -8,21 +8,27 @@ import {
 } from "@/components/forms/UserForm";
 import { useSession } from "@/lib/auth/SessionContext";
 import Image from "next/image";
+import { Recipe, User } from "@prisma/client";
 // import { SectionContainerStart } from "@/components/containers/SectionContainer";
 
+interface ProfileBioProps {
+  userData: User | null;
+  recipeData: Recipe[];
+}
+
 export default function ProfileBio({
-  username,
-  firstName,
-  lastName,
-  bio,
-  image,
-}: {
-  username: string | undefined;
-  firstName: string | undefined;
-  lastName: string | undefined;
-  bio?: string | undefined;
-  image?: string | undefined;
-}) {
+ userData, recipeData
+}: ProfileBioProps,) {
+  
+  const username = userData?.username as string;
+  const bio = userData?.bio as string;
+  const image = userData?.profileImage as string;
+  const firstName = userData?.firstName as string;
+  const lastName = userData?.lastName as string;
+  // const userRecipeLength = userData?.reci
+  const userRecipeLength = recipeData.length;
+
+
   const session = useSession();
   const [userBio, setUserBio] = useState(bio);
   const [userImage, setUserImage] = useState(image);
@@ -79,6 +85,11 @@ export default function ProfileBio({
                 <h2 className="!text-zinc-600">
                   {firstName} {lastName}
                 </h2>
+              </div>
+              <div className="flex flex-row gap-4">
+                <p className="text-lg">100 <span className="text-sm">followers</span></p>
+                <p className="text-lg">0 <span className="text-sm">following</span></p>
+                <p className="text-lg">{userRecipeLength} <span className="text-sm">Recipies</span></p>
               </div>
               <p className="whitespace-pre-wrap">{userBio}</p>
             </div>
