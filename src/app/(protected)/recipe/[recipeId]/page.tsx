@@ -1,3 +1,4 @@
+import { PageContainer } from "@/components/containers/PageContainer";
 import RecipeDetail from "@/components/RecipeDetail";
 import db from "@/lib/db";
 
@@ -25,9 +26,9 @@ export default async function Recipe({ params }: RecipeProps) {
   if (!recipe) {
     console.log("Recipe not found");
     return (
-      <div>
-        <h1>Recipe not found</h1>
-      </div>
+      <PageContainer>
+        <h1 className="text-2xl align-center">Recipe not found</h1>
+      </PageContainer>
     );
   }
 
