@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { CommentSection, ReactionSection } from "./CommentSection";
 
 interface RecipeCardProps {
   recipe: {
@@ -62,13 +63,13 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
           alt={recipe.user.username}
           width={32}
           height={32}
-          className="rounded-full object-cover"
+          className="rounded-full object-cover aspect-square"
         />
         <p className="text-sm font-semibold group-hover:underline">
           {recipe.user.username}
         </p>
       </Link>
-      <Link 
+      <Link
         className="w-fit hover:underline hover:text-primary transition-all ease-linear duration-200"
         href={`recipe/${recipe?.id}`}
       >
@@ -102,49 +103,44 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
           {recipe.recipeImage.map((_, index) => (
             <div
               key={index}
-              className={`w-2 h-2 rounded-full ${
-                index === currentImageIndex ? "bg-white" : "bg-gray-400"
-              }`}
+              className={`w-2 h-2 rounded-full ${index === currentImageIndex ? "bg-white" : "bg-gray-400"
+                }`}
             ></div>
           ))}
         </div>
       </div>
+      <ReactionSection />
       <div className="flex flex-col gap-5 text-sm md:text-base">
         <div className="flex flex-col gap-2">
           <h2 className="text-base font-semibold">Ingredients:</h2>
-          <p className={`${
-              isIngredientExpanded ? "" : "line-clamp-3"
-            } whitespace-pre-wrap`}>
+          <p className="whitespace-pre-wrap">
             {recipe.ingredients}
           </p>
-          {ingredientMoreThan300Chars && (
+          {/* {ingredientMoreThan300Chars && (
             <button
               onClick={toggleRecipeExpand}
               className="text-green-600 font-semibold w-fit hover:text-green-600/75 transition transition-200"
             >
               {isIngredientExpanded ? "Show less" : "Show more"}
             </button>
-          )}
+          )} */}
         </div>
         <div className="flex flex-col gap-2">
           <h2 className="text-base font-semibold">Procedures:</h2>
-          <p
-            className={`${
-              isProcedureExpanded ? "" : "line-clamp-3"
-            } whitespace-pre-wrap`}
-          >
+          <p className="whitespace-pre-wrap">
             {recipe.procedure}
           </p>
-          {procedureMoreThan400Chars && (
+          {/* {procedureMoreThan400Chars && (
             <button
               onClick={toggleProcedureExpand}
               className="text-green-600 font-semibold w-fit hover:text-green-600/75 transition transition-200"
             >
               {isProcedureExpanded ? "Show less" : "Show more"}
-            </button>
-          )}
+            </button> */}
+          {/* )} */}
         </div>
       </div>
+      <CommentSection />
     </div>
   );
 }
