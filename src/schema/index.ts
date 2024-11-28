@@ -86,7 +86,9 @@ export const userRecipeSchema = z.object({
   procedure: z.string().min(5, {
     message: "Procedure is required",
   }),
-  image: z.array(z.string()).optional(),
+  image: z.array(z.string()).min(1,
+    { message: "Image is required" }
+  ),
 });
 
 export const userSettingsSchema = z
