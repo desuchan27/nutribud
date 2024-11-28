@@ -29,10 +29,12 @@ export const Footer = () => {
               <FaYoutube className="w-5 h-5" />
             </div>
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo Rechille so gwapa bayhana.
+              NUTRIBUD is more than just a food app; it&apos;s also a fitness
+              partner designed to help you eat healthier and feel better.
+              Nutribud&apos;s user-friendly design and tips will make it easier
+              to transition to a healthy lifestyle. Choosing healthier foods is
+              now simple, thanks to a community that shares nutritional
+              ingredients and inspires you to meet your nutritional objectives.
             </p>
             <p>&copy; 2024 NutriBud. All rights reserved</p>
           </div>
