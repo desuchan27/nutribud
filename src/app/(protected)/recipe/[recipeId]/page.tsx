@@ -18,6 +18,7 @@ export default async function Recipe({ params }: RecipeProps) {
       id: recipeId,
     },
     include: {
+      ingredients: true,
       recipeImage: true, // Include the images relation
       user: true, // Include the user relation
     },
