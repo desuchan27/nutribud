@@ -9,10 +9,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { startTransition, useState } from "react";
 import { useSession } from "@/lib/auth/SessionContext";
-import { submitUserBio, submitUserRecipe, uploadProfileImage } from "@/actions/user.actions";
+import { submitUserBio, uploadProfileImage } from "@/actions/user.actions";
 import toast from "react-hot-toast";
 import { UploadButton } from "@/utils/uploadthing";
-import { useRouter } from "next/navigation";
 
 interface UserBioFormProps {
 	bio?: string;

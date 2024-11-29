@@ -77,7 +77,7 @@ export const uploadProfileImage = async (id: string, image: string) => {
 	}
 };
 
-export const submitUserRecipe = async (values: z.infer<typeof userRecipeSchema>) => {
+export const submitUserRecipe = async (values: z.infer<typeof userRecipeSchema> & { totalSrp: number }) => {
 	try {
 		const session = await validateRequest();
 

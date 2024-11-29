@@ -74,7 +74,8 @@ export function UserRecipeForm() {
 
 	const onSubmit = async (values: TRecipeSchema) => {
 		try {
-			await submitUserRecipe({ ...values, image: uploadedImages });
+			const totalSrp = values.ingredients.reduce((acc, curr) => acc + curr.srp, 0);
+			await submitUserRecipe({ ...values, image: uploadedImages, totalSrp });
 			toast.success("Recipe posted successfully!");
 			handleCloseModal();
 
