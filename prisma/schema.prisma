@@ -85,11 +85,27 @@ model Recipe {
   id        String   @id @default(cuid())
   title     String
   
+  recipeImage RecipeImage[]
+  
   // suggestion, make this an array of strings with the SRP, then add a logic to calculate the total SRP for the recipe
   ingredients Ingredients[]
 
   procedure String
-  recipeImage RecipeImage[]
+  
+  Calories Float
+  Protein Float
+  Carbs Float
+  Fat Float
+  Fiber Float
+  Sugar Float
+  Sodium Float
+  Potassium Float
+  VitaminC Float
+  VitaminA Float
+  Calcium Float
+  Iron Float
+
+
   user      User     @relation(fields: [userId], references: [id])
   userId    String
   createdAt DateTime @default(now())
