@@ -1,24 +1,56 @@
 import db from "@/lib/db";
-// import { PageContainer } from "@/components/containers/PageContainer";
-import RecipeList from "@/components/RecipeList";
 import { SectionContainerStart } from "@/components/containers/SectionContainer";
 import { validateRequest } from "@/auth";
+import RecipeFilter from "@/components/RecipeFilter";
+import RecipeList from "@/components/RecipeList";
+import { Prisma } from "@prisma/client";
+import RecipePagination from "@/components/RecipePagination";
 
-export default async function Home() {
+const NUTRIENTS = [
+	"Calories",
+	"Protein",
+	"Calcium",
+	"Carbs",
+	"Fat",
+	"Fiber",
+	"Iron",
+	"Potassium",
+	"Sodium",
+	"Sugar",
+	"VitaminA",
+	"VitaminC",
+] as const;
+
+export default async function Home({ searchParams }: { searchParams: { [key: string]: string | undefined } }) {
 	const session = await validateRequest();
-
 	const username = session.user?.username as string;
 
+	// pagination
+	const page = parseInt(searchParams.page || "1", 10); // Default to page 1 if not provided
+	const limit = 3; // Items per page
+	const offset = (page - 1) * limit;
+
+	const { where, isFiltered } = filterRecipe(searchParams);
+
 	const recipes = await db.recipe.findMany({
+		skip: offset,
+		take: limit,
 		orderBy: {
-			createdAt: "desc", // Sort by latest post
+			createdAt: "desc",
 		},
+		where,
 		include: {
 			ingredients: true,
-			recipeImage: true, // Include the images relation
-			user: true, // Include the user relation
+			recipeImage: true,
+			user: true,
 		},
 	});
+
+	// pagination
+	const totalRecipes = await db.recipe.count({
+		where,
+	});
+	const totalPages = Math.ceil(totalRecipes / limit);
 
 	const mappedRecipes = recipes.map((recipe) => ({
 		...recipe,
@@ -27,6 +59,13 @@ export default async function Home() {
 			image: recipe.user.profileImage || "", // Use profileImage as image
 		},
 	}));
+
+	const uniqueIngredients = await db.ingredients.findMany({
+		distinct: ["name"], // Field to make distinct
+		select: {
+			name: true, // Only select the name field
+		},
+	});
 
 	return (
 		<div>
@@ -38,7 +77,61 @@ export default async function Home() {
 					<p className="text-left text-sm">Here are some of the latest healthy recipes from our community</p>
 				</div>
 			</SectionContainerStart>
-			<RecipeList recipes={mappedRecipes} />
+			<RecipeFilter uniqueIngredients={uniqueIngredients} isFiltered={isFiltered} />
+			<RecipeList recipes={mappedRecipes} isFiltered={isFiltered} />
+			<RecipePagination page={page} totalPages={totalPages} />
 		</div>
 	);
+}
+
+function filterRecipe(searchParams: { [key: string]: string | undefined }) {
+	const title = searchParams["title"];
+	const budget = searchParams["budget"] ?? null;
+	const highToLow = searchParams["high-to-low"] ?? false;
+	const ingredients = searchParams["ingredients"]?.split(",");
+	const nutrients = NUTRIENTS.map((nutrient) => {
+		const paramValue = searchParams[nutrient];
+		if (!paramValue) return null;
+		return {
+			name: nutrient,
+			value: paramValue,
+		};
+	}).filter((nut) => !!nut);
+
+	const isFiltered = !!title || !!budget || !!ingredients || nutrients.length > 0;
+
+	let where: Prisma.RecipeWhereInput = {};
+	if (title) {
+		where.title = {
+			contains: title,
+			mode: "insensitive",
+		};
+	}
+
+	if (budget && Number(budget)) {
+		if (!highToLow) {
+			where.totalSrp = { lte: Number(budget) };
+		} else {
+			where.totalSrp = { gte: Number(budget) };
+		}
+	}
+
+	if (ingredients) {
+		where.ingredients = {
+			some: {
+				name: { in: ingredients },
+			},
+		};
+	}
+
+	if (nutrients.length > 0) {
+		nutrients.forEach(({ name, value }) => {
+			if (!!Number(value)) {
+				where[name] = {
+					lte: Number(value),
+				};
+			}
+		});
+	}
+	return { where, isFiltered };
 }

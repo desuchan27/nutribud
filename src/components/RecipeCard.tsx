@@ -5,14 +5,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { CommentSection, ReactionSection } from "./CommentSection";
+import { Prisma } from "@prisma/client";
 
 interface RecipeCardProps {
-	recipe: {
-		id: string;
-		title: string;
-		ingredients: { id: string; name: string; srp: number }[];
-		procedure: string;
-		recipeImage: { id: string; img: string }[];
+	recipe: Prisma.RecipeGetPayload<{
+		include: {
+			ingredients: true;
+			recipeImage: true;
+		};
+	}> & {
 		user: {
 			username: string;
 			image: string;
@@ -22,8 +23,6 @@ interface RecipeCardProps {
 
 export default function RecipeCard({ recipe }: RecipeCardProps) {
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
-	const [isIngredientExpanded, setIsIngredientExpanded] = useState(false);
-	const [isProcedureExpanded, setIsProcedureExpanded] = useState(false);
 
 	const moreThanOneImage = recipe.recipeImage.length > 1;
 
@@ -40,13 +39,21 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
 			className="flex flex-col gap-5 px-5 py-5 bg-white rounded-bl-[2rem] rounded-tr-[2rem] shadow-lg outline-none hover:outline hover:outline-secondary transition-all ease-linear duration-200"
 			key={recipe.id}>
 			<Link className="flex flex-row items-center gap-4 w-fit group" href={`/${recipe.user.username}`}>
-				<Image
-					src={recipe.user.image}
-					alt={recipe.user.username}
-					width={32}
-					height={32}
-					className="rounded-full object-cover aspect-square"
-				/>
+				{recipe.user.image ? (
+					<Image
+						src={recipe.user.image}
+						alt={recipe.user.username}
+						width={32}
+						height={32}
+						className="rounded-full object-cover aspect-square"
+					/>
+				) : (
+					<div className="h-9 w-9 relative aspect-square rounded-full flex items-center justify-center overflow-hidden bg-zinc-200 group-hover:bg-zinc-600">
+						<p className="text-zinc-600 text-sm font-semibold group-hover:text-white">
+							{recipe.user.username?.charAt(0).toUpperCase()}
+						</p>
+					</div>
+				)}
 				<p className="text-sm font-semibold group-hover:underline">{recipe.user.username}</p>
 			</Link>
 			<Link className="w-fit hover:underline hover:text-primary transition-all ease-linear duration-200" href={`recipe/${recipe?.id}`}>
@@ -75,15 +82,31 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
 					))}
 				</div>
 			</div>
-			<ReactionSection />
+			<ReactionSection
+				nutrients={[
+					{ name: "Calories", value: recipe.Calories },
+					{ name: "Protein", value: recipe.Protein },
+					{ name: "Calcium", value: recipe.Calcium },
+					{ name: "Carbs", value: recipe.Carbs },
+					{ name: "Fat", value: recipe.Fat },
+					{ name: "Fiber", value: recipe.Fiber },
+					{ name: "Iron", value: recipe.Iron },
+					{ name: "Potassium", value: recipe.Potassium },
+					{ name: "Sodium", value: recipe.Sodium },
+					{ name: "Sugar", value: recipe.Sugar },
+					{ name: "VitaminA", value: recipe.VitaminA },
+					{ name: "VitaminC", value: recipe.VitaminC },
+				]}
+			/>
 			<div className="flex flex-col gap-5 text-sm md:text-base">
 				<div className="flex flex-col gap-2">
 					<h2 className="text-base font-semibold">Ingredients:</h2>
 					{recipe.ingredients.map((ingredient) => (
 						<p key={ingredient.id} className="whitespace-pre-wrap">
-							{ingredient.name} - {ingredient.srp.toFixed(2)} srp
+							{ingredient.name} - {ingredient.srp.toFixed(2)} SRP
 						</p>
 					))}
+					<h2 className="text-base font-semibold">Total SRP: {recipe.totalSrp}</h2>
 				</div>
 				<div className="flex flex-col gap-2">
 					<h2 className="text-base font-semibold">Procedures:</h2>
