@@ -6,19 +6,16 @@ import Link from "next/link";
 import { PageContainer } from "./containers/PageContainer";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { CommentSection, ReactionSection } from "./CommentSection";
+import { Prisma } from "@prisma/client";
 
 interface RecipeDetailProps {
-	recipe: {
-		id: string;
-		title: string;
-		ingredients: { id: string; name: string; srp: number }[];
-		procedure: string;
-		recipeImage: { id: string; img: string }[];
-		user: {
-			username: string;
-			profileImage: string | null;
+	recipe: Prisma.RecipeGetPayload<{
+		include: {
+			ingredients: true;
+			recipeImage: true;
+			user: true;
 		};
-	};
+	}>;
 }
 
 export default function RecipeDetail({ recipe }: RecipeDetailProps) {
@@ -76,7 +73,22 @@ export default function RecipeDetail({ recipe }: RecipeDetailProps) {
 								))}
 							</div>
 						</div>
-						<ReactionSection />
+						<ReactionSection
+							nutrients={[
+								{ name: "Calories", value: recipe.Calories },
+								{ name: "Protein", value: recipe.Protein },
+								{ name: "Calcium", value: recipe.Calcium },
+								{ name: "Carbs", value: recipe.Carbs },
+								{ name: "Fat", value: recipe.Fat },
+								{ name: "Fiber", value: recipe.Fiber },
+								{ name: "Iron", value: recipe.Iron },
+								{ name: "Potassium", value: recipe.Potassium },
+								{ name: "Sodium", value: recipe.Sodium },
+								{ name: "Sugar", value: recipe.Sugar },
+								{ name: "VitaminA", value: recipe.VitaminA },
+								{ name: "VitaminC", value: recipe.VitaminC },
+							]}
+						/>
 						<div className="hidden md:flex w-full md:w-fit flex-col gap-2">
 							<h2 className="text-base md:text-lg font-semibold">Procedures</h2>
 							<p className="whitespace-pre-wrap">{recipe.procedure}</p>
@@ -87,7 +99,7 @@ export default function RecipeDetail({ recipe }: RecipeDetailProps) {
 						<div className="hidden md:flex flex-col gap-2 w-fit">
 							<h2 className="text-base md:text-lg font-semibold">Ingredients</h2>
 							{recipe.ingredients.map((ingredient) => (
-								<p className="whitespace-pre-wrap">
+								<p className="whitespace-pre-wrap" key={ingredient.id}>
 									{ingredient.name} - SRP: {ingredient.srp}
 								</p>
 							))}

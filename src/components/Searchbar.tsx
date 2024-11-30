@@ -84,7 +84,7 @@ export default function Searchbar({ users, currentUserId }: SearchbarProps) {
 					<CommandEmpty>No results found.</CommandEmpty>
 					<CommandGroup heading="Users">
 						{userList.map((user) => (
-							<CommandItem className="flex flex-row items-center gap-2 w-full group" value={user.username}>
+							<CommandItem key={user.id} className="flex flex-row items-center gap-2 w-full group" value={user.username}>
 								<Link href={`/${user.username}`} className="flex flex-row items-center gap-2 w-full" onClick={handleClose}>
 									{user.profileImage ? (
 										<Image

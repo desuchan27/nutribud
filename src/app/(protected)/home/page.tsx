@@ -5,6 +5,8 @@ import RecipeFilter from "@/components/RecipeFilter";
 import RecipeList from "@/components/RecipeList";
 import { Prisma } from "@prisma/client";
 import RecipePagination from "@/components/RecipePagination";
+import SideProfile from "@/components/partials/SideProfile";
+import SideRecipe from "@/components/partials/SideRecipe";
 
 const NUTRIENTS = [
 	"Calories",
@@ -77,9 +79,21 @@ export default async function Home({ searchParams }: { searchParams: { [key: str
 					<p className="text-left text-sm">Here are some of the latest healthy recipes from our community</p>
 				</div>
 			</SectionContainerStart>
-			<RecipeFilter uniqueIngredients={uniqueIngredients} isFiltered={isFiltered} />
-			<RecipeList recipes={mappedRecipes} isFiltered={isFiltered} />
-			<RecipePagination page={page} totalPages={totalPages} />
+			<div className="bg-gray-100 w-full">
+				<div className="flex gap-x-4 container mx-auto">
+					<div className="w-full hidden lg:block bg-white mt-4">
+						<SideProfile />
+					</div>
+					<div className="lg:min-w-[56rem] w-full">
+						<RecipeFilter uniqueIngredients={uniqueIngredients} isFiltered={isFiltered} />
+						<RecipeList recipes={mappedRecipes} isFiltered={isFiltered} />
+						<RecipePagination page={page} totalPages={totalPages} />
+					</div>
+					<div className="w-full hidden lg:block bg-white mt-4">
+						<SideRecipe />
+					</div>
+				</div>
+			</div>
 		</div>
 	);
 }
