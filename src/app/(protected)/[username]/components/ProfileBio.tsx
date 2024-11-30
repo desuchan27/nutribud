@@ -1,34 +1,41 @@
 "use client";
-
 import { useState } from "react";
 import { UserBioForm, UserProfileForm } from "@/components/forms/UserForm";
-import { useSession } from "@/lib/auth/SessionContext";
 import Image from "next/image";
-import { Recipe, User } from "@prisma/client";
+import { User } from "lucia";
+import { Prisma, Recipe } from "@prisma/client";
 import { UserRecipeForm } from "@/components/forms/RecipeForm";
+import { cn } from "@/lib/utils";
+import { userFollow, userUnfollow } from "@/actions/user.actions";
 // import { SectionContainerStart } from "@/components/containers/SectionContainer";
 
 interface ProfileBioProps {
-	userData: User | null;
+	userData: Prisma.UserGetPayload<{
+		include: {
+			followers: true;
+			following: true;
+		};
+	}>;
 	recipeData: Recipe[];
+	currentUser: User;
 }
 
-export default function ProfileBio({ userData, recipeData }: ProfileBioProps) {
-	const username = userData?.username as string;
-	const bio = userData?.bio as string;
-	const image = userData?.profileImage as string;
-	const firstName = userData?.firstName as string;
-	const lastName = userData?.lastName as string;
-	// const userRecipeLength = userData?.reci
+export default function ProfileBio({ userData, recipeData, currentUser }: ProfileBioProps) {
+	const [loading, setLoading] = useState(false);
+	const [isFollowed, setIsFollowed] = useState(() => userData.followers.some((f) => f.followerId === currentUser.id));
+
+	const username = userData.username as string;
+	const bio = userData.bio as string;
+	const image = userData.profileImage as string;
+	const firstName = userData.firstName as string;
+	const lastName = userData.lastName as string;
 	const userRecipeLength = recipeData.length;
 
-	const session = useSession();
 	const [userBio, setUserBio] = useState(bio);
 	const [userImage, setUserImage] = useState(image);
 
 	const userUsername = username as string;
-
-	const currentUser = session?.user?.username === username;
+	const isCurrentUser = currentUser.id === userData.id;
 
 	const handleBioUpdate = (newBio: string) => {
 		setUserBio(newBio);
@@ -38,7 +45,16 @@ export default function ProfileBio({ userData, recipeData }: ProfileBioProps) {
 		setUserImage(newProfile);
 	};
 
-	console.log("profile image:", userImage);
+	const handleFollowUnfollowUser = async (id: string, follow: boolean = true) => {
+		setLoading(true);
+		if (follow) {
+			await userFollow(id, currentUser.id, `/${userData.username}`);
+		} else {
+			await userUnfollow(id, currentUser.id, `/${userData.username}`);
+		}
+		setIsFollowed(follow);
+		setLoading(false);
+	};
 
 	return (
 		<>
@@ -57,22 +73,36 @@ export default function ProfileBio({ userData, recipeData }: ProfileBioProps) {
 							</div>
 						)}
 					</div>
-					{currentUser && <UserProfileForm image={userImage} onProfileUpdate={handleProfileUpdate} />}
+					{isCurrentUser && <UserProfileForm image={userImage} onProfileUpdate={handleProfileUpdate} />}
 				</div>
 				<div className="w-full md:w-5/6 flex flex-col justify-between text-zinc-700 gap-10">
 					<div className="w-full h-fit flex flex-col gap-4">
 						<div className="flex flex-col gap-1">
-							<h1 className="text-2xl font-semibold">{username}</h1>
+							<div className="flex items-center justify-between">
+								<h1 className="text-2xl font-semibold">{username}</h1>
+								{!isCurrentUser && (
+									<button
+										className={cn(
+											"inline-flex group-hover:text-white text-sm font-semibold flex-shrink-0 text-gray-600 border rounded-md px-2 py-2",
+											loading && "pointer-events-none opacity-50",
+										)}
+										type="button"
+										disabled={loading}
+										onClick={() => handleFollowUnfollowUser(userData.id, !isFollowed)}>
+										{isFollowed ? "(-) Unfollow" : "(+) Follow"}
+									</button>
+								)}
+							</div>
 							<h2 className="!text-zinc-600">
 								{firstName} {lastName}
 							</h2>
 						</div>
 						<div className="flex flex-row gap-4">
 							<p className="text-lg">
-								100 <span className="text-sm">followers</span>
+								{userData.followers.length} <span className="text-sm">followers</span>
 							</p>
 							<p className="text-lg">
-								0 <span className="text-sm">following</span>
+								{userData.following.length} <span className="text-sm">following</span>
 							</p>
 							<p className="text-lg">
 								{userRecipeLength} <span className="text-sm">Recipies</span>
@@ -80,7 +110,7 @@ export default function ProfileBio({ userData, recipeData }: ProfileBioProps) {
 						</div>
 						<p className="whitespace-pre-wrap">{userBio}</p>
 					</div>
-					{currentUser && (
+					{isCurrentUser && (
 						<div className="flex flex-row justify-end gap-4">
 							<UserBioForm bio={userBio} onBioUpdate={handleBioUpdate} />
 							<UserRecipeForm />
