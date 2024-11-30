@@ -64,7 +64,7 @@ model UserInfo {
   birthDate DateTime
   weight    Float
   height    Float
-  user      User       @relation(fields: [userId], references: [id])
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String     @unique
 
   // this serves as the user's monthly budget to filter the recipe
@@ -77,7 +77,7 @@ model UserInfo {
 model Allergies {
   id         String   @id @default(cuid())
   name       String
-  userInfo   UserInfo @relation(fields: [userInfoId], references: [id])
+  userInfo   UserInfo @relation(fields: [userInfoId], references: [id], onDelete: Cascade)
   userInfoId String
 }
 
@@ -89,6 +89,9 @@ model Recipe {
   
   // suggestion, make this an array of strings with the SRP, then add a logic to calculate the total SRP for the recipe
   ingredients Ingredients[]
+
+  // Directly add total SRP to the recipe to avoid expensive querying when filtering
+  totalSrp Float
 
   procedure String
   
@@ -105,7 +108,7 @@ model Recipe {
   Calcium Float
   Iron Float
 
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -116,7 +119,7 @@ model Ingredients {
   id        String   @id @default(cuid())
   name      String
   recipeId  String
-  recipe    Recipe   @relation(fields: [recipeId], references: [id])
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   srp       Float
 }
 
@@ -124,5 +127,5 @@ model RecipeImage {
   id        String   @id @default(cuid())
   img       String
   recipeId  String
-  recipe    Recipe   @relation(fields: [recipeId], references: [id])
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 }
