@@ -26,41 +26,44 @@ const NUTRIENTS = [
 export default async function Home({ searchParams }: { searchParams: { [key: string]: string | undefined } }) {
 	const session = await validateRequest();
 	const username = session.user?.username as string;
+	const currentUserId = session.user?.id ?? "";
+
+	const autoFilter = searchParams["auto-filter"] === "1";
 
 	// pagination
 	const page = parseInt(searchParams.page || "1", 10); // Default to page 1 if not provided
 	const limit = 3; // Items per page
 	const offset = (page - 1) * limit;
 
-	const { where, isFiltered } = filterRecipe(searchParams);
+	let mappedRecipes = [];
+	let totalPages = 0;
+	let isFiltered = false;
 
-	const recipes = await db.recipe.findMany({
-		skip: offset,
-		take: limit,
-		orderBy: {
-			createdAt: "desc",
-		},
-		where,
-		include: {
-			ingredients: true,
-			recipeImage: true,
-			user: true,
-		},
-	});
+	if (!autoFilter) {
+		const { recipes, totalPages: resTotalPages, isFiltered: resIsFiltered } = await filterRecipe(currentUserId, searchParams, limit, offset);
 
-	// pagination
-	const totalRecipes = await db.recipe.count({
-		where,
-	});
-	const totalPages = Math.ceil(totalRecipes / limit);
+		mappedRecipes = recipes.map((recipe) => ({
+			...recipe,
+			user: {
+				username: recipe.user.username,
+				image: recipe.user.profileImage || "", // Use profileImage as image
+			},
+		}));
+		totalPages = resTotalPages;
+		isFiltered = resIsFiltered;
+	} else {
+		const { recipes, totalPages: resTotalPages } = await autoFilterRecipe(currentUserId, limit, offset);
 
-	const mappedRecipes = recipes.map((recipe) => ({
-		...recipe,
-		user: {
-			username: recipe.user.username,
-			image: recipe.user.profileImage || "", // Use profileImage as image
-		},
-	}));
+		mappedRecipes = recipes.map((recipe) => ({
+			...recipe,
+			user: {
+				username: recipe.user.username,
+				image: recipe.user.profileImage || "", // Use profileImage as image
+			},
+		}));
+		totalPages = resTotalPages;
+		isFiltered = true;
+	}
 
 	const uniqueIngredients = await db.ingredients.findMany({
 		distinct: ["name"], // Field to make distinct
@@ -98,11 +101,13 @@ export default async function Home({ searchParams }: { searchParams: { [key: str
 	);
 }
 
-function filterRecipe(searchParams: { [key: string]: string | undefined }) {
+async function filterRecipe(currentUserId: string, searchParams: { [key: string]: string | undefined }, limit: number, offset: number) {
 	const title = searchParams["title"];
 	const budget = searchParams["budget"] ?? null;
 	const highToLow = searchParams["high-to-low"] ?? false;
 	const ingredients = searchParams["ingredients"]?.split(",");
+	const allergens = searchParams["allergens"] === "1";
+
 	const nutrients = NUTRIENTS.map((nutrient) => {
 		const paramValue = searchParams[nutrient];
 		if (!paramValue) return null;
@@ -112,7 +117,7 @@ function filterRecipe(searchParams: { [key: string]: string | undefined }) {
 		};
 	}).filter((nut) => !!nut);
 
-	const isFiltered = !!title || !!budget || !!ingredients || nutrients.length > 0;
+	const isFiltered = !!title || !!budget || !!ingredients || nutrients.length > 0 || !!allergens;
 
 	let where: Prisma.RecipeWhereInput = {};
 	if (title) {
@@ -147,5 +152,116 @@ function filterRecipe(searchParams: { [key: string]: string | undefined }) {
 			}
 		});
 	}
-	return { where, isFiltered };
+
+	if (allergens) {
+		const userInfo = await db.userInfo.findUnique({
+			where: { userId: currentUserId },
+			include: {
+				allergies: true,
+			},
+		});
+
+		// Extract allergies and budget
+		const allergies = userInfo?.allergies.map((allergy) => allergy.name) ?? [];
+		where.ingredients = {
+			none: {
+				name: { in: allergies }, // Exclude recipes with allergic ingredients
+			},
+		};
+	}
+
+	const recipes = await db.recipe.findMany({
+		skip: offset,
+		take: limit,
+		orderBy: {
+			createdAt: "desc",
+		},
+		where,
+		include: {
+			ingredients: true,
+			recipeImage: true,
+			user: true,
+		},
+	});
+
+	// pagination
+	const totalRecipes = await db.recipe.count({
+		where,
+	});
+	const totalPages = Math.ceil(totalRecipes / limit);
+	return { recipes, totalPages, isFiltered };
+}
+
+async function autoFilterRecipe(currentUserId: string, limit: number, offset: number) {
+	// Fetch the user's budget and allergies
+	const userInfo = await db.userInfo.findUnique({
+		where: { userId: currentUserId },
+		include: {
+			allergies: true,
+		},
+	});
+
+	// Extract allergies and budget
+	const allergies = userInfo?.allergies.map((allergy) => allergy.name) ?? [];
+	const monthlyBudget = userInfo?.monthyBudget ?? 0;
+
+	// Filter recipes
+	const personalizedHealthyRecipes = await db.recipe.findMany({
+		skip: offset,
+		take: limit,
+		where: {
+			AND: [
+				{ Calories: { lt: 500 } },
+				{ Protein: { gte: 10 } },
+				{ Fat: { lt: 15 } },
+				{ Sugar: { lt: 10 } },
+				{ Fiber: { gte: 3 } },
+				{ totalSrp: { lte: monthlyBudget } }, // Ensure recipe cost fits the daily budget
+				{
+					ingredients: {
+						none: {
+							name: { in: allergies }, // Exclude recipes with allergic ingredients
+						},
+					},
+				},
+			],
+		},
+		orderBy: {
+			createdAt: "desc",
+		},
+		include: {
+			user: {
+				select: {
+					id: true,
+					username: true,
+					profileImage: true,
+				},
+			},
+			ingredients: true,
+			recipeImage: true,
+		},
+	});
+
+	// Pagination
+	const totalRecipes = await db.recipe.count({
+		where: {
+			AND: [
+				{ Calories: { lt: 500 } },
+				{ Protein: { gte: 10 } },
+				{ Fat: { lt: 15 } },
+				{ Sugar: { lt: 10 } },
+				{ Fiber: { gte: 3 } },
+				{ totalSrp: { lte: monthlyBudget } },
+				{
+					ingredients: {
+						none: {
+							name: { in: allergies },
+						},
+					},
+				},
+			],
+		},
+	});
+	const totalPages = Math.ceil(totalRecipes / limit);
+	return { recipes: personalizedHealthyRecipes, totalPages };
 }

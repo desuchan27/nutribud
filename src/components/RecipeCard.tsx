@@ -103,7 +103,7 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
 					<h2 className="text-base font-semibold">Ingredients:</h2>
 					{recipe.ingredients.map((ingredient) => (
 						<p key={ingredient.id} className="whitespace-pre-wrap">
-							{ingredient.name} - {ingredient.srp.toFixed(2)} SRP
+							{ingredient.name}: {ingredient.srp.toFixed(2)} SRP
 						</p>
 					))}
 					<h2 className="text-base font-semibold">Total SRP: {recipe.totalSrp}</h2>

@@ -29,6 +29,12 @@ export default async function SideProfile() {
 					id: true,
 				},
 			},
+			userInfo: {
+				select: {
+					monthyBudget: true,
+					allergies: true,
+				},
+			},
 		},
 	});
 
@@ -59,6 +65,10 @@ export default async function SideProfile() {
 			</div>
 			<div className="flex flex-col gap-y-2 mx-auto">
 				<p className="text-lg">
+					<span className="text-sm text-gray-500 font-semibold">Monthly Budget:</span>{" "}
+					<span className="text-sm">{user.userInfo?.monthyBudget ?? 0}</span>
+				</p>
+				<p className="text-lg">
 					<span className="text-sm text-gray-500 font-semibold">followers:</span>{" "}
 					<span className="text-sm">{user.followers.length}</span>
 				</p>
@@ -69,6 +79,14 @@ export default async function SideProfile() {
 				<p className="text-lg">
 					<span className="text-sm text-gray-500 font-semibold">Recipies:</span> <span className="text-sm">{user.recipe.length}</span>
 				</p>
+			</div>
+			<div className="flex flex-wrap justify-center mt-2">
+				{user.userInfo?.allergies && <h6 className="w-full text-center mb-2 font-semibold text-gray-500">Allergies:</h6>}
+				{user.userInfo?.allergies.map((allergy) => (
+					<span className="mr-2 rounded-lg bg-red-400 px-2 py-1 text-xs text-white flex-shrink-0" key={allergy.id}>
+						{allergy.name}
+					</span>
+				))}
 			</div>
 		</div>
 	);

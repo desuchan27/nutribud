@@ -38,45 +38,49 @@ export default async function SideRecipe() {
 	return (
 		<div className="flex flex-col gap-y-4 px-4 py-6">
 			<h3 className="font-semibold text-gray-600">Latest posted recipe from followed users:</h3>
-			<div className="flex flex-col gap-y-4 divide-y-2">
-				{latestRecipesFromFollowedUsers.map((recipe) => {
-					return (
-						<div key={recipe.id} className="flex flex-col gap-y-1 rounded-none pt-2">
-							<Link href={`/${recipe.user.username}`} className="flex items-center gap-x-2 group">
-								<div className="size-9 rounded-full">
-									{recipe.user.profileImage ? (
-										<Image
-											src={recipe.user.profileImage}
-											alt={recipe.user.username}
-											className="object-cover w-full h-full rounded-full"
-											fill
-										/>
-									) : (
-										<div className="w-full h-full bg-zinc-200 rounded-full">
-											<div className="w-full h-full flex justify-center items-center">
-												<p className="text-zinc-600 text-lg font-semibold">
-													{recipe.user.username?.charAt(0).toUpperCase()}
-												</p>
+			<div className="flex flex-col gap-y-8 divide-y-2">
+				{latestRecipesFromFollowedUsers.length > 0 ? (
+					latestRecipesFromFollowedUsers.map((recipe) => {
+						return (
+							<div key={recipe.id} className="flex flex-col gap-y-1 rounded-none pt-2">
+								<Link href={`/${recipe.user.username}`} className="flex items-center gap-x-2 group">
+									<div className="size-9 rounded-full">
+										{recipe.user.profileImage ? (
+											<Image
+												src={recipe.user.profileImage}
+												alt={recipe.user.username}
+												className="object-cover w-full h-full rounded-full"
+												fill
+											/>
+										) : (
+											<div className="w-full h-full bg-zinc-200 rounded-full">
+												<div className="w-full h-full flex justify-center items-center">
+													<p className="text-zinc-600 text-lg font-semibold">
+														{recipe.user.username?.charAt(0).toUpperCase()}
+													</p>
+												</div>
 											</div>
-										</div>
-									)}
-								</div>
-								<div>
-									<h4 className="font-semibold text-md group-hover:underline leading-none">
-										{recipe.user.firstName} {recipe.user.lastName}
-									</h4>
-									<p className="text-gray-400 text-sm">@{recipe.user.username}</p>
-								</div>
-							</Link>
-							<Link href={`/recipe/${recipe.id}`} className="hover:underline">
-								<h6 className="font-semibold text-lg text-gray-700">{recipe.title}</h6>
-								<div className="relative w-full aspect-square sm:aspect-video">
-									<Image src={recipe.recipeImage[0].img} alt={recipe.title} fill className="rounded-lg object-cover" />
-								</div>
-							</Link>
-						</div>
-					);
-				})}
+										)}
+									</div>
+									<div>
+										<h4 className="font-semibold text-md group-hover:underline leading-none">
+											{recipe.user.firstName} {recipe.user.lastName}
+										</h4>
+										<p className="text-gray-400 text-sm">@{recipe.user.username}</p>
+									</div>
+								</Link>
+								<Link href={`/recipe/${recipe.id}`} className="hover:underline">
+									<h6 className="font-semibold text-lg text-gray-700">{recipe.title}</h6>
+									<div className="relative w-full aspect-square sm:aspect-video">
+										<Image src={recipe.recipeImage[0].img} alt={recipe.title} fill className="rounded-lg object-cover" />
+									</div>
+								</Link>
+							</div>
+						);
+					})
+				) : (
+					<p className="text-center text-lg font-semibold text-gray-400">No followed user or no new recipe posted yet.</p>
+				)}
 			</div>
 		</div>
 	);

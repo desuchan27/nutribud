@@ -8,6 +8,7 @@ import { LuChevronsUpDown } from "react-icons/lu";
 import { useRouter, useSearchParams } from "next/navigation";
 import CommandMultiSelect from "./command-multi-select";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Checkbox } from "./ui/checkbox";
 
 // ----------------------------------------------------------------------
 
@@ -28,6 +29,7 @@ const filterSchema = z.object({
 	VitaminA: z.string(),
 	Calcium: z.string(),
 	Iron: z.string(),
+	allergens: z.boolean(),
 });
 
 type TFilterSchema = z.infer<typeof filterSchema>;
@@ -71,10 +73,11 @@ export default function RecipeFilter({ uniqueIngredients, isFiltered }: { unique
 			VitaminA: searchParams.get("VitaminA") ?? "",
 			Calcium: searchParams.get("Calcium") ?? "",
 			Iron: searchParams.get("Iron") ?? "",
+			allergens: searchParams.get("allergens") === "1",
 		},
 	});
 	const { register, watch, setValue, reset } = methods;
-	const { lowToHigh, ingredients, ...values } = watch();
+	const { lowToHigh, ingredients, allergens, ...values } = watch();
 
 	const handleSelectIngredients = (value: string, selected: boolean = false) => {
 		if (!selected) {
@@ -86,12 +89,14 @@ export default function RecipeFilter({ uniqueIngredients, isFiltered }: { unique
 	};
 
 	const onSubmit = (data: TFilterSchema) => {
-		const { title, budget, lowToHigh } = data;
+		const { title, budget, lowToHigh, allergens } = data;
 		const params = new URLSearchParams(searchParams);
 		params.delete("title");
 		params.delete("budget");
 		params.delete("ingredients");
 		params.delete("high-to-low");
+		params.delete("allergens");
+		params.delete("page");
 
 		nutrients.map((nutrient) => {
 			params.delete(nutrient);
@@ -112,9 +117,42 @@ export default function RecipeFilter({ uniqueIngredients, isFiltered }: { unique
 		if (!!ingredients.length) {
 			params.set("ingredients", ingredients.join(","));
 		}
+		if (allergens) {
+			params.set("allergens", "1");
+		}
 		if (params.size > 0) {
 			router.push("/home" + "?" + params.toString(), { scroll: false });
 		}
+	};
+
+	const handleAutoFilter = () => {
+		reset({
+			title: "",
+			budget: null,
+			ingredients: [],
+			lowToHigh: false,
+			Calories: "",
+			Protein: "",
+			Carbs: "",
+			Fat: "",
+			Fiber: "",
+			Sugar: "",
+			Sodium: "",
+			Potassium: "",
+			VitaminC: "",
+			VitaminA: "",
+			Calcium: "",
+			Iron: "",
+		});
+		const params = new URLSearchParams(searchParams);
+		params.delete("title");
+		params.delete("budget");
+		params.delete("ingredients");
+		params.delete("high-to-low");
+		params.delete("allergens");
+		params.delete("page");
+		params.set("auto-filter", "1");
+		router.push("/home" + "?" + params.toString(), { scroll: false });
 	};
 
 	const clearFilter = () => {
@@ -183,18 +221,38 @@ export default function RecipeFilter({ uniqueIngredients, isFiltered }: { unique
 						<div>
 							<NutrientFilter setValue={setValue} values={values} />
 						</div>
-						<div className="w-full flex gap-x-2 border-t pt-2 rounded-none">
+						<div className="flex items-center space-x-2">
+							<Checkbox
+								id="alergens"
+								checked={allergens}
+								onCheckedChange={(checked) => {
+									setValue("allergens", !!checked);
+								}}
+							/>
+							<label
+								htmlFor="alergens"
+								className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+								Avoid My Allergens
+							</label>
+						</div>
+						<div className="w-full flex flex-col gap-2 border-t pt-2 rounded-none">
 							<button
 								className="w-full text-center gap-1.5 text-sm text-white p-2 rounded-md bg-primary hover:bg-primary/75"
 								type="submit">
 								Search
+							</button>
+							<button
+								className="w-full text-center gap-1.5 text-sm text-white p-2 rounded-md bg-slate-600 hover:bg-slate-600/75"
+								type="button"
+								onClick={handleAutoFilter}>
+								Automatic Filter
 							</button>
 							{isFiltered && (
 								<button
 									className="w-full text-center gap-1.5 text-sm text-white p-2 rounded-md bg-red-400 hover:bg-red-400/75"
 									type="button"
 									onClick={clearFilter}>
-									Clear
+									Clear Filter
 								</button>
 							)}
 						</div>
@@ -209,7 +267,7 @@ function NutrientFilter({
 	values,
 	setValue,
 }: {
-	values: Omit<TFilterSchema, "lowToHigh" | "ingredients">;
+	values: Omit<TFilterSchema, "lowToHigh" | "ingredients" | "allergens">;
 	setValue: UseFormSetValue<TFilterSchema>;
 }) {
 	const handleChange = (value: string, name: (typeof nutrients)[number]) => {
