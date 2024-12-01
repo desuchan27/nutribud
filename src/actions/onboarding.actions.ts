@@ -6,90 +6,86 @@ import { userInfoSchema } from "@/schema";
 import { validateRequest } from "@/auth";
 
 export const getUser = async (id: string) => {
-  const user = await db.user.findFirst({
-    where: {
-      id: id,
-    },
-    include: {
-      userInfo: true, // Include userInfo in the query
-    },
-  });
+	const user = await db.user.findFirst({
+		where: {
+			id: id,
+		},
+		include: {
+			userInfo: true, // Include userInfo in the query
+		},
+	});
 
-  if (!user) {
-    return { redirect: "/login" };
-  }
+	if (!user) {
+		return { redirect: "/login" };
+	}
 
-  const userInfo = user.userInfo;
+	const userInfo = user.userInfo;
 
-  if (userInfo) {
-    return { redirect: "/home" };
-  }
+	if (userInfo) {
+		return { redirect: "/home" };
+	}
 
-  if (user && !userInfo) {
-    return { redirect: `/onboarding/${id}` };
-  }
+	if (user && !userInfo) {
+		return { redirect: `/onboarding/${id}` };
+	}
 
-  if (!user) {
-    return { redirect: "/login" };
-  }
+	if (!user) {
+		return { redirect: "/login" };
+	}
 
-  return { user };
+	return { user };
 };
 
-export const submitUserInfo = async (
-  userId: string,
-  values: z.infer<typeof userInfoSchema>
-) => {
-  const { birthDate, height, weight } = values;
-  const session = await validateRequest();
+export const submitUserInfo = async (userId: string, values: z.infer<typeof userInfoSchema>) => {
+	const { birthDate, height, weight } = values;
+	const session = await validateRequest();
 
-  try {
-    if (session.user?.id !== userId) {
-      return { error: "User not found" };
-    }
+	try {
+		if (session.user?.id !== userId) {
+			return { error: "User not found" };
+		}
 
-    // Check if UserInfo exists
-    const userInfo = await db.userInfo.findUnique({
-      where: { userId },
-    });
+		// Check if UserInfo exists
+		const userInfo = await db.userInfo.findUnique({
+			where: { userId },
+		});
 
-    if (userInfo) {
-      // If UserInfo exists, update it
-      await db.user.update({
-        where: { id: userId },
-        data: {
-          userInfo: {
-            update: {
-              birthDate,
-              height,
-              weight,
-            },
-          },
-        },
-      });
+		if (userInfo) {
+			// If UserInfo exists, update it
+			await db.user.update({
+				where: { id: userId },
+				data: {
+					userInfo: {
+						update: {
+							birthDate,
+							height,
+							weight,
+						},
+					},
+				},
+			});
 
-      return { success: true };
-    } else {
-      // If UserInfo does not exist, create a new UserInfo record
-      await db.user.update({
-        where: { id: userId },
-        data: {
-          userInfo: {
-            create: {
-              birthDate,
-              height,
-              weight,
-            },
-          },
-        },
-      });
+			return { success: true };
+		} else {
+			// If UserInfo does not exist, create a new UserInfo record
+			await db.user.update({
+				where: { id: userId },
+				data: {
+					userInfo: {
+						create: {
+							birthDate,
+							height,
+							weight,
+							monthyBudget: 0,
+						},
+					},
+				},
+			});
 
-      return { success: true };
-    }
-  } catch (error) {
-    console.error("Error updating user info:", error);
-    return { error: "An unknown error occurred" };
-  }
+			return { success: true };
+		}
+	} catch (error) {
+		console.error("Error updating user info:", error);
+		return { error: "An unknown error occurred" };
+	}
 };
-
-

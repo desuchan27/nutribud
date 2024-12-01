@@ -2,7 +2,7 @@
 
 import * as z from "zod";
 import Image from "next/image";
-import { userBioSchema, userProfileImageSchema, userRecipeSchema } from "@/schema";
+import { userBioSchema, userProfileImageSchema } from "@/schema";
 import { FaCamera, FaEdit, FaPlus } from "react-icons/fa";
 import { useModal } from "@/components/UseModal"; // Adjust the import path as needed
 import { useForm } from "react-hook-form";

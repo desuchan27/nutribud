@@ -4,6 +4,7 @@ import * as z from "zod";
 import { validateRequest } from "@/auth";
 import db from "@/lib/db";
 import { userRecipeSchema } from "@/schema";
+import { revalidatePath } from "next/cache";
 
 export const getUserInfo = (id: string) => {
 	const user = db.user.findFirst({
@@ -110,5 +111,37 @@ export const submitUserRecipe = async (values: z.infer<typeof userRecipeSchema> 
 		return {
 			error: "An unknown error occurred",
 		};
+	}
+};
+
+export const userFollow = async (id: string, currentUserId: string, revalidate: string | undefined = undefined) => {
+	try {
+		await db.follows.create({
+			data: {
+				followerId: currentUserId, // The user initiating the follow
+				userId: id, // The user being followed
+			},
+		});
+		if (!!revalidate) {
+			revalidatePath(revalidate);
+		}
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+export const userUnfollow = async (id: string, currentUserId: string, revalidate: string | undefined = undefined) => {
+	try {
+		await db.follows.deleteMany({
+			where: {
+				followerId: currentUserId,
+				userId: id,
+			},
+		});
+		if (!!revalidate) {
+			revalidatePath(revalidate);
+		}
+	} catch (error) {
+		console.log(error);
 	}
 };
