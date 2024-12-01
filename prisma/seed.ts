@@ -29,13 +29,33 @@ main()
 		process.exit(1);
 	});
 
+async function uploadDummyUserImages() {
+	const fileNames = ["1.jpeg", "2.jpeg", "3.jpeg", "4.jpeg", "5.jpeg", "6.jpeg", "7.jpeg"];
+	const formData = new FormData();
+	fileNames.forEach((fileName) => {
+		const filebuffer = fs.readFileSync(path.join(process.cwd(), "public/dummies/images/user", fileName));
+		formData.append("files", new Blob([filebuffer]), fileName);
+	});
+	const files = formData.getAll("files") as File[];
+	return await utapi.uploadFiles(files);
+}
+
 async function userSeed() {
+	const userImages = await uploadDummyUserImages();
 	for (const user of users) {
-		const hashedPassword = await new Argon2id().hash(user.password);
+		let profileImage = null;
+		if (Math.floor(Math.random() * 10) > 3) {
+			const img = userImages[Math.floor(Math.random() * userImages.length)];
+			if (img.data) {
+				profileImage = img.data.appUrl;
+			}
+		}
+		const hashedPassword = await new Argon2id().hash("123123");
 		const newUser = await prisma.user.create({
 			data: {
 				...user,
 				password: hashedPassword,
+				profileImage,
 			},
 		});
 		console.log(`Created user with id: ${newUser.id}`);
@@ -79,5 +99,6 @@ async function uploadDummyRecipeImages() {
 async function dropAll() {
 	await prisma.recipe.deleteMany();
 	await prisma.session.deleteMany();
+	await prisma.follows.deleteMany();
 	await prisma.user.deleteMany();
 }

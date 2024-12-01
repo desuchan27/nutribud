@@ -50,7 +50,8 @@ export default async function SideRecipe() {
 												src={recipe.user.profileImage}
 												alt={recipe.user.username}
 												className="object-cover w-full h-full rounded-full"
-												fill
+												width={36}
+												height={36}
 											/>
 										) : (
 											<div className="w-full h-full bg-zinc-200 rounded-full">
