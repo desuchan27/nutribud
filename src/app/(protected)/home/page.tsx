@@ -119,7 +119,7 @@ async function filterRecipe(currentUserId: string, searchParams: { [key: string]
 
 	const isFiltered = !!title || !!budget || !!ingredients || nutrients.length > 0 || !!allergens;
 
-	let where: Prisma.RecipeWhereInput = {};
+	const where: Prisma.RecipeWhereInput = {};
 	if (title) {
 		where.title = {
 			contains: title,
@@ -138,7 +138,13 @@ async function filterRecipe(currentUserId: string, searchParams: { [key: string]
 	if (ingredients) {
 		where.ingredients = {
 			some: {
-				name: { in: ingredients },
+				// name: { in: ingredients },
+				OR: ingredients.map((ing) => ({
+					name: {
+						contains: ing,
+						mode: "insensitive",
+					},
+				})),
 			},
 		};
 	}
@@ -164,8 +170,16 @@ async function filterRecipe(currentUserId: string, searchParams: { [key: string]
 		// Extract allergies and budget
 		const allergies = userInfo?.allergies.map((allergy) => allergy.name) ?? [];
 		where.ingredients = {
+			// none: {
+			// 	name: { in: allergies }, // Exclude recipes with allergic ingredients
+			// },
 			none: {
-				name: { in: allergies }, // Exclude recipes with allergic ingredients
+				OR: allergies.map((allergy) => ({
+					name: {
+						contains: allergy, // exclude word that contains the word e.g "Cheese" and "Mozzarella Cheese"
+						mode: "insensitive", // ensures the comparison is case-insensitive
+					},
+				})), // Exclude recipes with allergic ingredients
 			},
 		};
 	}
@@ -216,12 +230,17 @@ async function autoFilterRecipe(currentUserId: string, limit: number, offset: nu
 				{ Fat: { lt: 15 } },
 				{ Sugar: { lt: 10 } },
 				{ Fiber: { gte: 3 } },
-				{ totalSrp: { lte: monthlyBudget } }, // Ensure recipe cost fits the daily budget
+				{ totalSrp: { lte: monthlyBudget } }, // Ensure recipe cost fits the budget
 				{
 					ingredients: {
 						none: {
-							name: { in: allergies }, // Exclude recipes with allergic ingredients
-						},
+							OR: allergies.map((allergy) => ({
+								name: {
+									contains: allergy, // exclude word that contains the word e.g "Cheese" and "Mozzarella Cheese"
+									mode: "insensitive", // ensures the comparison is case-insensitive
+								},
+							})),
+						}, // Exclude recipes with allergic ingredients
 					},
 				},
 			],

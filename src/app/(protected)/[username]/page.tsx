@@ -26,6 +26,11 @@ export default async function Profile({ params }: ProfileProps) {
 		include: {
 			followers: true,
 			following: true,
+			userInfo: {
+				include: {
+					allergies: true,
+				},
+			},
 		},
 	});
 

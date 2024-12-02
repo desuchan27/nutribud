@@ -20,7 +20,7 @@ export default async function SideRecipe() {
 		orderBy: {
 			createdAt: "desc", // Order recipes by the latest
 		},
-		take: 3, // Limit to top 3
+		take: 5, // Limit to top 5
 		include: {
 			user: {
 				select: {

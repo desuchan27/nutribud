@@ -182,7 +182,7 @@ export default function RecipeFilter({ uniqueIngredients, isFiltered }: { unique
 			<div className="px-5 py-5 bg-white rounded-bl-[2rem] rounded-tr-[2rem] shadow-md max-w-4xl mx-auto">
 				<FormProvider {...methods} onSubmit={onSubmit} className="flex items-center gap-x-4 gap-y-2">
 					<div className="flex flex-col w-full gap-2">
-						<div className="flex w-full gap-x-2.5">
+						<div className="flex max-sm:flex-wrap max-sm:justify-between w-full gap-y-2 lg:gap-x-2.5">
 							<div className="relative w-full">
 								<CiSearch className="absolute top-3 left-2 size-5 text-gray-500" />
 								<input
@@ -197,7 +197,7 @@ export default function RecipeFilter({ uniqueIngredients, isFiltered }: { unique
 									setValue("budget", Number(e.currentTarget.value));
 								}}
 								type="number"
-								className="p-2 border rounded-md flex-shrink-0"
+								className="p-2 border max-sm:w-7/12 rounded-md flex-shrink-0"
 								placeholder="Budget"
 							/>
 							<button
@@ -212,7 +212,7 @@ export default function RecipeFilter({ uniqueIngredients, isFiltered }: { unique
 						</div>
 						<div className="space-x-2">
 							<CommandMultiSelect
-								label="Filter Ingredients"
+								label="Ingredients"
 								values={ingredients}
 								onSelect={handleSelectIngredients}
 								options={uniqueIngredients.map((i) => ({ label: i.name, value: i.name }))}
@@ -287,7 +287,7 @@ function NutrientFilter({
 							</span>
 						);
 					})}
-					<span className="text-sm flex-shrink-0 text-gray-600">Filter Nutrients</span>
+					<span className="text-sm flex-shrink-0 text-gray-600">Nutrients</span>
 				</p>
 			</PopoverTrigger>
 			<PopoverContent className="w-[var(--radix-popper-anchor-width)]" align="center">

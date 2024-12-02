@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { useModal } from "../UseModal";
 import { UploadButton } from "@/utils/uploadthing";
@@ -14,6 +14,7 @@ import HookFormInput from "../hook-form/input";
 import FormProvider from "../hook-form/form";
 import HookFormTextarea from "../hook-form/textarea";
 import { cn } from "@/lib/utils";
+// import Upload from "../Upload";
 
 interface UploadResponse {
 	url: string;
@@ -98,6 +99,14 @@ export function UserRecipeForm() {
 		}
 	};
 
+	const handleDrop = useCallback((acceptedFiles: File[]) => {
+		const files = acceptedFiles.map((f) =>
+			Object.assign(f, {
+				preview: URL.createObjectURL(f),
+			}),
+		);
+	}, []);
+
 	const ingredients = form.watch("ingredients");
 	const totalSrp = ingredients.reduce((acc, curr) => acc + curr.srp, 0);
 	return (
@@ -133,6 +142,10 @@ export function UserRecipeForm() {
 								<p className="text-xs pl-1.5 text-red-600 text-center">{form.formState.errors.image.message}</p>
 							)}
 						</div>
+
+						{/* <div className="px-4">
+							<Upload onDrop={handleDrop} files={[]} />
+						</div> */}
 
 						<div className="flex flex-row gap-2 overflow-x-auto">
 							{uploadedImages.map((url, index) => (
@@ -202,7 +215,7 @@ export function UserRecipeForm() {
 	);
 }
 
-const ingredientPlaceholders = ["1/4 cup olive oil", "half an onion", "3 carrots", "3 ribs celery", "1 teaspoon coarse kosher salt"];
+const ingredientPlaceholders = ["Olive", "Onion", "Carrot", "Celery", "Salt"];
 
 type IngredientErrors =
 	| Merge<

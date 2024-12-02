@@ -56,9 +56,14 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
 				)}
 				<p className="text-sm font-semibold group-hover:underline">{recipe.user.username}</p>
 			</Link>
-			<Link className="w-fit hover:underline hover:text-primary transition-all ease-linear duration-200" href={`recipe/${recipe?.id}`}>
-				<h1 className="text-base md:text-xl font-semibold">{recipe.title}</h1>
-			</Link>
+			<div className="flex items-center justify-between">
+				<Link className="w-fit hover:underline hover:text-primary transition-all ease-linear duration-200" href={`recipe/${recipe?.id}`}>
+					<h1 className="text-base md:text-xl font-semibold">{recipe.title}</h1>
+				</Link>
+				<span className="rounded-lg bg-primary px-2 py-1 text-xs text-white flex-shrink-0">
+					Estimated Total Budget: {recipe.totalSrp}
+				</span>
+			</div>
 
 			<div className="relative w-full aspect-square sm:aspect-video">
 				<Image src={recipe.recipeImage[currentImageIndex].img} alt={recipe.title} fill className="rounded-lg object-cover" />

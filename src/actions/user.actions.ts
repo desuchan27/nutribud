@@ -125,6 +125,7 @@ export const userFollow = async (id: string, currentUserId: string, revalidate: 
 		if (!!revalidate) {
 			revalidatePath(revalidate);
 		}
+		revalidatePath("/home");
 	} catch (error) {
 		console.log(error);
 	}
@@ -141,6 +142,7 @@ export const userUnfollow = async (id: string, currentUserId: string, revalidate
 		if (!!revalidate) {
 			revalidatePath(revalidate);
 		}
+		revalidatePath("/home");
 	} catch (error) {
 		console.log(error);
 	}

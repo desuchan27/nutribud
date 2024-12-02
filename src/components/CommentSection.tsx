@@ -40,9 +40,9 @@ export function ReactionSection({ nutrients }: { nutrients: { name: string; valu
 	return (
 		<div className="w-full flex flex-col gap-10">
 			<div className="flex lg:gap-x-5 gap-x-2 justify-between items-start">
-				<div className="flex gap-2 flex-wrap">
+				<div className="flex gap-x-1.5 gap-y-2 flex-wrap">
 					{nutrients.map((val) => (
-						<span key={val.name} className="mr-2 rounded-lg bg-primary px-2 py-1 text-xs text-white flex-shrink-0">
+						<span key={val.name} className="rounded-lg bg-primary px-2 py-1 text-xs text-white flex-shrink-0">
 							{val.name}: {val.value}
 						</span>
 					))}

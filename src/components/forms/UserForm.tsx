@@ -23,18 +23,6 @@ interface UserProfileFormProps {
 	onProfileUpdate: (newProfile: string) => void;
 }
 
-// interface RecipeFormProps {
-//   id: string;
-//   title: string;
-//   ingredients: string;
-//   procedure: string;
-//   image: string[];
-// }
-
-interface UploadResponse {
-	url: string;
-}
-
 export function UserBioForm({ bio, onBioUpdate }: UserBioFormProps) {
 	const { modal, handleOpenModal, handleCloseModal } = useModal();
 	const [charCount, setCharCount] = useState(bio?.length || 0);
@@ -140,22 +128,6 @@ export function UserProfileForm({ image, onProfileUpdate }: UserProfileFormProps
 	const session = useSession();
 	const userId = session?.user?.id;
 
-	// const onSubmit = (values: z.infer<typeof userProfileImageSchema>) => {
-	//   startTransition(() => {
-	//     uploadProfileImage(userId!, values.imageUrl)
-	//       .then((data) => {
-	//         if (data?.error) {
-	//           form.reset();
-	//           toast.error(data.error);
-	//           console.log(data.error);
-	//         }
-	//       })
-	//       .catch((error) => {
-	//         console.log(error);
-	//       });
-	//   });
-	// };
-
 	const onSubmit = async (values: { imageUrl: string }) => {
 		try {
 			const data = await uploadProfileImage(userId!, values.imageUrl);
@@ -178,7 +150,7 @@ export function UserProfileForm({ image, onProfileUpdate }: UserProfileFormProps
 	return (
 		<>
 			<button
-				className="flex flex-row items-center justify-center text-sm sm:text-base text-zinc-700 text-nowrap text-zinc-700 gap-2"
+				className="flex flex-row items-center justify-center text-sm sm:text-base text-zinc-700 text-nowrap gap-2"
 				onClick={handleOpenModal}>
 				<FaCamera className="w-5 h-5" />
 				update profile
@@ -209,15 +181,6 @@ export function UserProfileForm({ image, onProfileUpdate }: UserProfileFormProps
 							)}
 							<UploadButton
 								className="mt-4 ut-button:bg-primary hover:ut-button:bg-primary/75 ut-button:ut-readying:bg-primary/50"
-								// appearance={{
-								//   button({ ready, isUploading }) {
-								//     return `custom-button ${
-								//       ready ? "custom-button-ready" : "custom-button-not-ready"
-								//     } ${isUploading ? "custom-button-uploading" : ""}`;
-								//   },
-								//   container: "custom-container",
-								//   allowedContent: "custom-allowed-content",
-								// }}
 								endpoint="imageUploader"
 								onClientUploadComplete={(res) => {
 									if (res && res.length > 0) {
