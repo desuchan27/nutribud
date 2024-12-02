@@ -14,6 +14,11 @@ interface ProfileBioProps {
 		include: {
 			followers: true;
 			following: true;
+			userInfo: {
+				include: {
+					allergies: true;
+				};
+			};
 		};
 	}>;
 	recipeData: Recipe[];
@@ -79,7 +84,7 @@ export default function ProfileBio({ userData, recipeData, currentUser }: Profil
 					<div className="w-full h-fit flex flex-col gap-4">
 						<div className="flex flex-col gap-1">
 							<div className="flex items-center justify-between">
-								<h1 className="text-2xl font-semibold">{username}</h1>
+								<h1 className="text-2xl font-semibold">@{username}</h1>
 								{!isCurrentUser && (
 									<button
 										className={cn(
@@ -107,8 +112,23 @@ export default function ProfileBio({ userData, recipeData, currentUser }: Profil
 							<p className="text-lg">
 								{userRecipeLength} <span className="text-sm">Recipies</span>
 							</p>
+							<p className="text-lg">
+								{userData.userInfo?.monthyBudget ?? 0} <span className="text-sm">Monthly Budget</span>
+							</p>
 						</div>
 						<p className="whitespace-pre-wrap">{userBio}</p>
+						<div>
+							<h6 className="w-full mb-2 font-semibold text-gray-500">Allergies:</h6>
+							{!!userData.userInfo?.allergies.length ? (
+								userData.userInfo.allergies.map((allergy) => (
+									<span className="mr-2 rounded-lg bg-red-400 px-2 py-1 text-xs text-white flex-shrink-0" key={allergy.id}>
+										{allergy.name}
+									</span>
+								))
+							) : (
+								<span className="text-sm font-semibold">No allergies.</span>
+							)}
+						</div>
 					</div>
 					{isCurrentUser && (
 						<div className="flex flex-row justify-end gap-4">

@@ -17,7 +17,7 @@ export default function RecipePagination({ page, totalPages }: RecipePaginationP
 	const queryParams = !!params.toString() ? "&" + params.toString() : "";
 
 	return (
-		<div className="flex items-center justify-center py-8 gap-4">
+		<div className="flex items-center justify-center py-6 my-2 gap-4 bg-white rounded-bl-[2rem] rounded-tr-[2rem] shadow-lg">
 			<Link
 				className={cn("px-3 py-2 border rounded-md", page <= 1 && "pointer-events-none opacity-50")}
 				href={`/home?${queryParams}`}

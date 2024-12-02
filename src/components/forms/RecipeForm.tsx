@@ -1,8 +1,6 @@
-import Image from "next/image";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { useModal } from "../UseModal";
-import { UploadButton } from "@/utils/uploadthing";
 import { type Control, type FieldError, type FieldErrorsImpl, type Merge, useFieldArray, useForm, type UseFormRegister } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userRecipeSchema } from "@/schema";
@@ -14,10 +12,7 @@ import HookFormInput from "../hook-form/input";
 import FormProvider from "../hook-form/form";
 import HookFormTextarea from "../hook-form/textarea";
 import { cn } from "@/lib/utils";
-
-interface UploadResponse {
-	url: string;
-}
+import Upload from "../Upload";
 
 type TRecipeSchema = z.infer<typeof userRecipeSchema>;
 
@@ -37,8 +32,9 @@ const nutrients = [
 ] as const;
 
 export function UserRecipeForm() {
+	const [loading, setLoading] = useState(false);
 	const { modal, handleOpenModal, handleCloseModal } = useModal();
-	const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+	const [images, setImages] = useState<(File & { preview: string })[]>([]);
 	const router = useRouter();
 
 	const form = useForm<TRecipeSchema>({
@@ -73,9 +69,25 @@ export function UserRecipeForm() {
 	});
 
 	const onSubmit = async (values: TRecipeSchema) => {
+		setLoading(true);
+		if (images.length === 0) {
+			form.setError("image", { message: "Please add an image" });
+			return;
+		}
+		const formData = new FormData();
+		images.forEach((img) => {
+			formData.append("files", img);
+		});
+		const res = (await (
+			await fetch("/api/upload", {
+				method: "POST",
+				body: formData,
+			})
+		).json()) as { images: { img: string }[] };
+
 		try {
 			const totalSrp = values.ingredients.reduce((acc, curr) => acc + curr.srp, 0);
-			await submitUserRecipe({ ...values, image: uploadedImages, totalSrp });
+			await submitUserRecipe({ ...values, totalSrp, image: res.images });
 			toast.success("Recipe posted successfully!");
 			handleCloseModal();
 
@@ -84,19 +96,21 @@ export function UserRecipeForm() {
 			console.error("Error submitting recipe:", error);
 			toast.error("An unknown error occurred");
 		}
+		setLoading(false);
 	};
 
-	const handleUploadComplete = (res: UploadResponse[]) => {
-		if (res && res.length > 0) {
-			const uploadedUrls = res.map((file) => file.url);
-			setUploadedImages((prev) => [...prev, ...uploadedUrls]);
-			form.setValue("image", [...uploadedImages, ...uploadedUrls]);
+	const handleDrop = useCallback(
+		async (acceptedFiles: File[]) => {
+			const files = acceptedFiles.map((f) =>
+				Object.assign(f, {
+					preview: URL.createObjectURL(f),
+				}),
+			);
+			setImages(files);
 			form.clearErrors("image");
-			alert("Upload Completed");
-		} else {
-			alert("No files uploaded.");
-		}
-	};
+		},
+		[setImages, form],
+	);
 
 	const ingredients = form.watch("ingredients");
 	const totalSrp = ingredients.reduce((acc, curr) => acc + curr.srp, 0);
@@ -116,30 +130,11 @@ export function UserRecipeForm() {
 						className="w-full h-3/4 md:w-1/2 md:max-h-1/2 md:h-fit flex flex-col justify-between bg-gray-100 p-4 gap-5 rounded-tr-xl rounded-bl-[3rem] overflow-auto  max-h-[95svh]">
 						<h2 className="font-semibold text-lg text-zinc-600 mb-2">Share Your Recipe</h2>
 
-						<div>
-							<UploadButton
-								className={cn(
-									"mt-4 ut-button:bg-primary hover:ut-button:bg-primary/75 ut-button:ut-readying:bg-primary/50",
-									!!form.formState.errors.image?.message &&
-										"[&>div]:text-red-600 [&>label]:border [&>label]:border-red-600 [&>label]:text-red-400 [&>label]:font-semibold",
-								)}
-								endpoint="imageUploader"
-								onClientUploadComplete={handleUploadComplete}
-								onUploadError={(error: Error) => {
-									alert(`ERROR! ${error.message}`);
-								}}
-							/>
+						<div className="px-4">
+							<Upload onDrop={handleDrop} files={images} multiple error={!!form.formState.errors.image?.message} />
 							{!!form.formState.errors.image?.message && (
-								<p className="text-xs pl-1.5 text-red-600 text-center">{form.formState.errors.image.message}</p>
+								<p className="text-xs pl-1.5 text-red-600 text-center mt-1">{form.formState.errors.image.message}</p>
 							)}
-						</div>
-
-						<div className="flex flex-row gap-2 overflow-x-auto">
-							{uploadedImages.map((url, index) => (
-								<div key={index} className="relative w-[150px] h-[150px] lg:w-[300px] lg:h-[300px]">
-									<Image src={url} alt={`Uploaded ${index}`} fill className="object-cover rounded-md" />
-								</div>
-							))}
 						</div>
 
 						<HookFormInput<TRecipeSchema>
@@ -186,12 +181,14 @@ export function UserRecipeForm() {
 						<div className="flex justify-end mt-4">
 							<button
 								onClick={handleCloseModal}
-								className="px-4 py-2 bg-gray-300 text-zinc-700 hover:bg-gray-300/75 transition-bg duration-200 rounded-md mr-2">
+								className="px-4 py-2 bg-gray-300 text-zinc-700 disabled:opacity-50 hover:bg-gray-300/75 transition-bg duration-200 rounded-md mr-2"
+								disabled={loading}>
 								Cancel
 							</button>
 							<button
 								type="submit"
-								className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/75 transition-bg duration-200">
+								className="px-4 py-2 bg-primary disabled:opacity-50 text-white rounded-md hover:bg-primary/75 transition-bg duration-200"
+								disabled={loading}>
 								Publish Recipe
 							</button>
 						</div>
@@ -202,7 +199,7 @@ export function UserRecipeForm() {
 	);
 }
 
-const ingredientPlaceholders = ["1/4 cup olive oil", "half an onion", "3 carrots", "3 ribs celery", "1 teaspoon coarse kosher salt"];
+const ingredientPlaceholders = ["Olive", "Onion", "Carrot", "Celery", "Salt"];
 
 type IngredientErrors =
 	| Merge<

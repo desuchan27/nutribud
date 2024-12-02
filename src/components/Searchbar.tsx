@@ -79,7 +79,7 @@ export default function Searchbar({ users, currentUserId }: SearchbarProps) {
 				</kbd>
 			</div>
 			<CommandDialog open={open} onOpenChange={setOpen}>
-				<CommandInput placeholder="search components..." />
+				<CommandInput placeholder="search user..." />
 				<CommandList>
 					<CommandEmpty>No results found.</CommandEmpty>
 					<CommandGroup heading="Users">

@@ -37,7 +37,7 @@ export const getUser = async (id: string) => {
 };
 
 export const submitUserInfo = async (userId: string, values: z.infer<typeof userInfoSchema>) => {
-	const { birthDate, height, weight } = values;
+	const { birthDate, height, weight, monthlyBudget, allergies } = values;
 	const session = await validateRequest();
 
 	try {
@@ -52,6 +52,12 @@ export const submitUserInfo = async (userId: string, values: z.infer<typeof user
 
 		if (userInfo) {
 			// If UserInfo exists, update it
+			await db.allergies.deleteMany({
+				where: {
+					userInfoId: userInfo.id,
+				},
+			});
+
 			await db.user.update({
 				where: { id: userId },
 				data: {
@@ -60,6 +66,10 @@ export const submitUserInfo = async (userId: string, values: z.infer<typeof user
 							birthDate,
 							height,
 							weight,
+							monthyBudget: monthlyBudget ?? 0,
+							allergies: {
+								create: allergies,
+							},
 						},
 					},
 				},
@@ -76,7 +86,10 @@ export const submitUserInfo = async (userId: string, values: z.infer<typeof user
 							birthDate,
 							height,
 							weight,
-							monthyBudget: 0,
+							monthyBudget: monthlyBudget ?? 0,
+							allergies: {
+								create: allergies,
+							},
 						},
 					},
 				},

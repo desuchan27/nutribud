@@ -59,6 +59,12 @@ export const userInfoSchema = z.object({
 	weight: z.coerce.number().min(40, {
 		message: "Weight must be greater than 40 kg",
 	}),
+	monthlyBudget: z.number().min(1, "Please add your monthly budget."),
+	allergies: z.array(
+		z.object({
+			name: z.string(),
+		}),
+	),
 });
 
 export const userBioSchema = z.object({
@@ -83,20 +89,20 @@ export const userRecipeSchema = z.object({
 	ingredients: z
 		.array(
 			z.object({
-				name: z.string().min(5, {
+				name: z.string().min(2, {
 					message: "Ingredients is/are required",
 				}),
 				srp: z
-					.number({ message: "Srp for ingredient is required" })
+					.number({ message: "SRP for ingredient is required" })
 					.nonnegative()
-					.refine((num) => num > 0, "Srp for ingredient is required"),
+					.refine((num) => num > 0, "SRP for ingredient is required"),
 			}),
 		)
 		.min(1, "Ingredients is/are required"),
 	procedure: z.string().min(5, {
 		message: "Procedure is required",
 	}),
-	image: z.array(z.string()).min(1, { message: "Image is required" }),
+	image: z.array(z.string()),
 	Calories: z.number({ message: "Calories for ingredient is required" }).nonnegative(),
 	Protein: z.number({ message: "Protein for ingredient is required" }).nonnegative(),
 	Carbs: z.number({ message: "Carbs for ingredient is required" }).nonnegative(),
