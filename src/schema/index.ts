@@ -102,7 +102,7 @@ export const userRecipeSchema = z.object({
 	procedure: z.string().min(5, {
 		message: "Procedure is required",
 	}),
-	image: z.array(z.string()).min(1, { message: "Image is required" }),
+	image: z.array(z.string()),
 	Calories: z.number({ message: "Calories for ingredient is required" }).nonnegative(),
 	Protein: z.number({ message: "Protein for ingredient is required" }).nonnegative(),
 	Carbs: z.number({ message: "Carbs for ingredient is required" }).nonnegative(),

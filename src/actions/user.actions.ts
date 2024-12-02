@@ -78,7 +78,9 @@ export const uploadProfileImage = async (id: string, image: string) => {
 	}
 };
 
-export const submitUserRecipe = async (values: z.infer<typeof userRecipeSchema> & { totalSrp: number }) => {
+export const submitUserRecipe = async (
+	values: Omit<z.infer<typeof userRecipeSchema>, "image"> & { totalSrp: number; image: { img: string }[] },
+) => {
 	try {
 		const session = await validateRequest();
 
@@ -88,8 +90,6 @@ export const submitUserRecipe = async (values: z.infer<typeof userRecipeSchema> 
 
 		const { ingredients, image, ...recipes } = values;
 
-		const imageArray = Array.isArray(image) ? image : [image];
-
 		await db.recipe.create({
 			data: {
 				...recipes,
@@ -97,7 +97,7 @@ export const submitUserRecipe = async (values: z.infer<typeof userRecipeSchema> 
 					create: ingredients,
 				},
 				recipeImage: {
-					create: imageArray.map((img) => ({ img: img as string })), // Ensure img is a string
+					create: image,
 				},
 				userId: session.user.id,
 			},
